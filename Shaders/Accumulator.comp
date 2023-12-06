@@ -1,0 +1,47 @@
+#version 450
+// Accumulator.comp
+// This compute shader is an accumulator. It operates on two buffers a source and
+// destination. Both buffers are of the same data type, and the source is added to the
+// destination, with the result going into the destination buffer.
+
+// Compile me on the command line to SPIRV:
+// glslc Accumulator.comp -o Accumulator.spv
+
+// If you want a hex string (on macOS, probably Linux)
+// xxd -i Accumulator.spv
+
+
+// *********** These are predefined 
+// in uvec3 gl_NumWorkGroups;
+// in uvec3 gl_WorkGroupID;
+// in uvec3 gl_LocalInvocationID;
+// in uvec3 gl_GlobalInvocationID;
+// in uint  gl_LocalInvocationIndex;
+
+//uint atomicAdd(inout uint mem, uint data)
+//Adds data to mem.
+
+layout (binding = 0) uniform ParameterUBO {
+    int     numElements;
+} ubo;
+
+
+layout(std140, binding = 1) readonly buffer sourceBufferIn {
+   uint valuesIn[ ];
+};
+
+layout(std140, binding = 2) buffer destinationBufferOut {
+   uint accumulatorOut[ ];
+};
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+void main() 
+{
+    uint index = gl_GlobalInvocationID.x;  
+
+    uint src = valuesIn[index];
+    uint dst = accumulatorOut[index];
+
+    accumulatorOut[index] = src + dst;
+}
