@@ -75,12 +75,12 @@ VBBPhysicalDevices::VBBPhysicalDevices(VkInstance instance) : m_vulkanInstance(i
     nDeviceOverride can be used to force a particular GPU be used.
     queueType can be any combination of queue flags. By default it is just a graphics queue
  */
-VkResult VBBPhysicalDevices::createLogicalDevice(VBBDevice& logicalDevice, VkQueueFlags queueType, int nDeviceOverride) {
+VkResult VBBPhysicalDevices::createLogicalDevice(VBBDevice* pLogicalDevice, VkQueueFlags queueType, int nDeviceOverride) {
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
     // If we are going to do graphics, you have to have a KHR_swapchain
     if (queueType & VK_QUEUE_GRAPHICS_BIT) {
-        logicalDevice.addRequiredDeviceExtension("VK_KHR_swapchain");  // Must always have for drawing
+        pLogicalDevice->addRequiredDeviceExtension("VK_KHR_swapchain");  // Must always have for drawing
     }
 
     // If we did an overrride, we are done looking
@@ -117,7 +117,7 @@ VkResult VBBPhysicalDevices::createLogicalDevice(VBBDevice& logicalDevice, VkQue
             queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
             queueCreateInfo.queueFamilyIndex = i;
             queueCreateInfo.queueCount = 1;
-            logicalDevice.m_queueFamilyIndex = i;
+            pLogicalDevice->m_queueFamilyIndex = i;
             queueCreateInfo.pQueuePriorities = &defaultQueuePriority;
             found = VK_TRUE;
             break;
@@ -140,7 +140,7 @@ VkResult VBBPhysicalDevices::createLogicalDevice(VBBDevice& logicalDevice, VkQue
     // If the device supports the portability subset extnesion, then we
     // must enable it.
     if (isExtensionSupported(nDeviceOverride, "VK_KHR_portability_subset")) {
-        logicalDevice.addRequiredDeviceExtension("VK_KHR_portability_subset");
+        pLogicalDevice->addRequiredDeviceExtension("VK_KHR_portability_subset");
 
         // Get and enable all portability features that are available
         physicalDeviceFeatures2.pNext = &portabilityFeatures;
@@ -150,24 +150,24 @@ VkResult VBBPhysicalDevices::createLogicalDevice(VBBDevice& logicalDevice, VkQue
 
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-    deviceCreateInfo.enabledExtensionCount = (uint32_t)logicalDevice.m_requiredDeviceExtensions.size();
-    deviceCreateInfo.ppEnabledExtensionNames = logicalDevice.m_requiredDeviceExtensions.data();
+    deviceCreateInfo.enabledExtensionCount = (uint32_t)pLogicalDevice->m_requiredDeviceExtensions.size();
+    deviceCreateInfo.ppEnabledExtensionNames = pLogicalDevice->m_requiredDeviceExtensions.data();
     deviceCreateInfo.pEnabledFeatures = nullptr;
     deviceCreateInfo.pNext = &physicalDeviceFeatures2;
 
-    VkResult result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &logicalDevice.m_logicalDevice);
+    VkResult result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &pLogicalDevice->m_logicalDevice);
     if (result != VK_SUCCESS) return result;
 
     // Logical device might want to know who it's daddy is.
-    logicalDevice.m_physicalDevice = physicalDevice;
+    pLogicalDevice->m_physicalDevice = physicalDevice;
 
     // Get the queue
-    vkGetDeviceQueue(logicalDevice.m_logicalDevice, queueCreateInfo.queueFamilyIndex, 0, &logicalDevice.m_primaryQueue);
+    vkGetDeviceQueue(pLogicalDevice->m_logicalDevice, queueCreateInfo.queueFamilyIndex, 0, &pLogicalDevice->m_primaryQueue);
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queueCreateInfo.queueFamilyIndex;
 
-    return vkCreateCommandPool(logicalDevice.m_logicalDevice, &poolInfo, nullptr, &logicalDevice.m_commandPool);
+    return vkCreateCommandPool(pLogicalDevice->m_logicalDevice, &poolInfo, nullptr, &pLogicalDevice->m_commandPool);
 }

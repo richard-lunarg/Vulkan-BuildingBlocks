@@ -24,10 +24,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Source code in this folder
 file(GLOB FILES_HEADER ./*.h)
-file(GLOB FILES_HEADER ../../*.H)
+file(GLOB FILES_HEADER ../../*.h)
 
 #file(GLOB FILES_SOURCE main.cpp $ENV{VULKAN_SDK}/include/volk/volk.c ../../*.cpp ./*.c)
-file(GLOB FILES_SOURCE SphereWorld.cpp ../../*.cpp ./*.c)
+file(GLOB FILES_SOURCE SphereWorld.cpp ../../src/*.cpp ./*.c)
 
 
 add_executable(SphereWorld MACOSX_BUNDLE ${FILES_HEADER} ${FILES_SOURCE})
@@ -38,7 +38,7 @@ endif()
 
 set_target_properties(SphereWorld PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(SphereWorld PRIVATE "$ENV{VULKAN_SDK}/include" "$ENV{VULKAN_SDK}/include/SDL2" "./" "../../")
+target_include_directories(SphereWorld PRIVATE "$ENV{VULKAN_SDK}/include" "$ENV{VULKAN_SDK}/include/SDL2" "./" "../../include")
 target_link_directories(SphereWorld PRIVATE $ENV{VULKAN_SDK}/lib)
 target_compile_definitions(SphereWorld PRIVATE VK_NO_PROTOTYPES)
 

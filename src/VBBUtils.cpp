@@ -316,13 +316,13 @@ void VBBMakeSphere(VBBSimpleIndexedMesh& sphereBatch, double radius, uint32_t iS
             vVertex[3][1] = y * radius;
             vVertex[3][2] = z * radius;
 
-            sphereBatch.addVertex(vVertex[0].data(), vNormal[0].data(), vTexture[0].data());
-            sphereBatch.addVertex(vVertex[1].data(), vNormal[1].data(), vTexture[1].data());
-            sphereBatch.addVertex(vVertex[2].data(), vNormal[2].data(), vTexture[2].data());
+            sphereBatch.addVertex(vVertex[0].data(), vNormal[0].data(), vTexture[0].data(),1);
+            sphereBatch.addVertex(vVertex[1].data(), vNormal[1].data(), vTexture[1].data(),1);
+            sphereBatch.addVertex(vVertex[2].data(), vNormal[2].data(), vTexture[2].data(),1);
 
-            sphereBatch.addVertex(vVertex[1].data(), vNormal[1].data(), vTexture[1].data());
-            sphereBatch.addVertex(vVertex[3].data(), vNormal[3].data(), vTexture[3].data());
-            sphereBatch.addVertex(vVertex[2].data(), vNormal[2].data(), vTexture[2].data());
+            sphereBatch.addVertex(vVertex[1].data(), vNormal[1].data(), vTexture[1].data(),1);
+            sphereBatch.addVertex(vVertex[3].data(), vNormal[3].data(), vTexture[3].data(),1);
+            sphereBatch.addVertex(vVertex[2].data(), vNormal[2].data(), vTexture[2].data(),1);
         }
         t -= dt;
     }

@@ -24,19 +24,28 @@
 #include "VBBShaderModule.h"
 #include <memory.h>
 
+#define VBB_USE_SHADER_TOOLCHAIN
+
+#ifdef VBB_USE_SHADER_TOOLCHAIN
+
+#include <glslang/Include/glslang_c_interface.h>
+
+#endif
+
+
 #define SPIRV_MAGIC 0x07230203
 
 
 VBBShaderModule::VBBShaderModule() { m_shaderModule = VK_NULL_HANDLE; }
 
 VBBShaderModule::~VBBShaderModule(void) {
-    if (m_shaderModule != VK_NULL_HANDLE) vkDestroyShaderModule(m_logicalDevice, m_shaderModule, nullptr);
+    if (m_shaderModule != VK_NULL_HANDLE) vkDestroyShaderModule(m_device, m_shaderModule, nullptr);
 }
 
 // ******************************************************************************
 // Load from a file
-VkResult VBBShaderModule::loadSPIRVFile(const VkDevice logical, const char *szFullPath) {
-    m_logicalDevice = logical;
+VkResult VBBShaderModule::loadSPIRVFile(const VkDevice device, const char *szFullPath) {
+    m_device = device;
     
     std::ifstream file(szFullPath, std::ios::ate | std::ios::binary);
     std::vector<char> buffer;
@@ -54,13 +63,13 @@ VkResult VBBShaderModule::loadSPIRVFile(const VkDevice logical, const char *szFu
     memcpy(&spirvMagic, buffer.data(), 4);
     if (spirvMagic != SPIRV_MAGIC) return VK_ERROR_INCOMPATIBLE_SHADER_BINARY_EXT;
 
-    return loadSPIRVSrc(logical, buffer.data(), uint32_t(buffer.size()));
+    return loadSPIRVSrc(device, buffer.data(), uint32_t(buffer.size()));
 }
 
 // *******************************************************************************
 // Load from memory
 VkResult VBBShaderModule::loadSPIRVSrc(const VkDevice device, void *szShaderSrc, uint32_t sizeBytes) {
-    m_logicalDevice = device;
+    m_device = device;
 
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -68,4 +77,35 @@ VkResult VBBShaderModule::loadSPIRVSrc(const VkDevice device, void *szShaderSrc,
     createInfo.pCode = reinterpret_cast<const uint32_t *>(szShaderSrc);
 
     return vkCreateShaderModule(device, &createInfo, nullptr, &m_shaderModule);
+}
+
+// *******************************************************************************
+// Load a shader file, compile it, and create the shader module
+VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szFullPath)
+{
+    m_device = device;
+
+    // Read the file in
+    std::ifstream file(szFullPath, std::ios::ate | std::ios::binary);
+    std::vector<char> buffer;
+
+    if (!file.is_open()) return VK_ERROR_UNKNOWN;   // For lack of a better return code
+
+    size_t fileSize = (size_t)file.tellg();
+    buffer.resize(fileSize);
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+    file.close();
+/*
+    glslang_initialize_process();
+
+    glslang_shader_t* shader = glslang_shader_create((const glslang_input_s*)buffer.data());
+    // glslang_input_s*
+    if(shader == NULL)
+        return VK_ERROR_INITIALIZATION_FAILED;
+
+    glslang_shader_delete(shader);
+    glslang_finalize_process();
+*/
+    return VK_SUCCESS;
 }

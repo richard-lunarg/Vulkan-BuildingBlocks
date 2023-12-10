@@ -40,11 +40,14 @@ class VBBShaderModule {
     VBBShaderModule();
     ~VBBShaderModule();
 
-    VkResult loadSPIRVFile(const VkDevice logical, const char *szFullPath);
-    VkResult loadSPIRVSrc(const VkDevice logical, void *szShaderSrc, uint32_t sizeBytes);
+    VkResult loadSPIRVFile(const VkDevice device, const char *szFullPath);
+    VkResult loadSPIRVSrc(const VkDevice device, void *szShaderSrc, uint32_t sizeBytes);
+
+    VkResult loadGLSLANGFile(const VkDevice device, const char *szFullPath);
+
     VkShaderModule getShaderModule(void) { return m_shaderModule; }
 
   protected:
-    VkDevice m_logicalDevice;
+    VkDevice m_device;
     VkShaderModule m_shaderModule;
 };
