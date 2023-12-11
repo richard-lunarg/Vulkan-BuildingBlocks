@@ -21,7 +21,7 @@
  * This software is part of the Vulkan Building Blocks
  */
 
-#ifndef VBBCANVAS_H
+#pragma once
 
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
@@ -138,5 +138,3 @@ class VBBCanvas {
     // or this class can create the surface.
     VkSurfaceKHR m_surfaceHandle = VK_NULL_HANDLE;
 };
-
-#endif  // VBBCANVAS_H

@@ -21,8 +21,8 @@
  * This software is part of the Vulkan Building Blocks
  */
 
-#include <VBBTextureStreaming.h>
-#include <VBBSingleShotCommand.h>
+#include "VBBTextureStreaming.h"
+#include "VBBSingleShotCommand.h"
 
 // *****************************************************************************************************************
 // Constructor just stores data, does no real work that can fail
