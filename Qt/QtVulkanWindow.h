@@ -1,7 +1,24 @@
-/*
- *  Richard S. Wright Jr.
- *  richard@lunarg.com
+/* Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Copyright © 2023 Richard S. Wright Jr. (richard@lunarg.com)
+ *
+ * This software is part of the Vulkan Building Blocks
  */
 
 #ifndef QTVULKANWINDOW_H
@@ -28,12 +45,14 @@ public:
     // After this is called, Vulkan is ready for rendering. Any additional initialization should be done after this
     // Call these functions before creating the canvas to set desired samples, call the get functions after
     // to see how many samples were actually used
-    void                        setMSAA(VkSampleCountFlagBits samples) { msaaSamples = samples; }
-    VkSampleCountFlagBits       getMSAASamples(void) { return msaaSamples; }
+    void                        setMSAA(VkSampleCountFlagBits samples) { m_msaaSamples = samples; }
+    VkSampleCountFlagBits       getMSAASamples(void) { return m_msaaSamples; }
 
-    void                        setDepthStencil(VkBool32 want) { wantDepthStencil = want; }
-    void                        setFramesInFlight(uint32_t fif) { framesInFlight = fif; }
-    void                        setFlipViewport(VkBool32 flip) { flipViewport = flip; }
+    void                        setDepthStencil(VkBool32 want) { m_wantDepthStencil = want; }
+    void                        setFramesInFlight(uint32_t fif) { m_framesInFlight = fif; }
+    void                        setFlipViewport(VkBool32 flip) { m_flipViewport = flip; }
+    void                        setClearColor(VkClearValue val) { m_clearColor = val; }
+    void                        setDepthStencilClearValue(VkClearValue val) { m_depthStencilClearValue = val; }
 
     inline VkResult getLastResult(void) { return lastResult; }
 
@@ -53,10 +72,14 @@ protected:
 
 
     // User set's these before creating the canvas
-    VkSampleCountFlagBits       msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-    VkBool32                    wantDepthStencil = VK_FALSE;
-    uint32_t                    framesInFlight = 2;
-    VkBool32                    flipViewport = VK_FALSE;
+    VkSampleCountFlagBits       m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+    VkBool32                    m_wantDepthStencil = VK_FALSE;
+    uint32_t                    m_framesInFlight = 2;
+    VkBool32                    m_flipViewport = VK_FALSE;
+    VkClearValue                m_clearColor = {{0.0f, 0.0f, 0.2f, 0.0f}};
+    VkClearValue                m_depthStencilClearValue = {{{1.0f, 0}}};
+
+
 
     // Overridden functions
     virtual void	resizeEvent(QResizeEvent *ev) override;     // Derived classes should call the base version of this first

@@ -22,10 +22,18 @@
  */
 
 #ifndef VBBCANVAS_H
-#define VBBCANVAS_H
+
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #include "vma/vk_mem_alloc.h"
+
+#ifdef VK_NO_PROTOTYPES
+#include <volk/volk.h>
+#else
+#include <vulkan/vulkan.h>
+#endif
+
+
 #include "VBBDevice.h"
 #include "VBBFence.h"
 
@@ -55,7 +63,7 @@ class VBBCanvas {
 
     void setFramesInFlight(uint32_t fif = 2) { m_framesInFlight = fif; }
     void setClearColor(VkClearValue value) { m_clearColorValue = value; }
-    void setClearDepthStencil(VkClearValue value) { m_clearDepthStencilValue = value; }
+    void setClearDepthStencilValues(VkClearValue value) { m_clearDepthStencilValue = value; }
     void setBlocking(VkBool32 blocking) { m_wantBlocking = blocking; }
     void setViewportFlip(VkBool32 flip) { m_flipViewport = flip; }
     void setPresentMode(VkPresentModeKHR mode) { m_presentMode = mode; }

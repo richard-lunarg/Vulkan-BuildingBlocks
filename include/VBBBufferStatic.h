@@ -28,6 +28,7 @@
 
 #include "VBBBufferDynamic.h"
 #include "VBBDevice.h"
+
 ///////////////////////////////////////////////////////////////
 // Create a dynamic buffer
 class VBBBufferStatic {
