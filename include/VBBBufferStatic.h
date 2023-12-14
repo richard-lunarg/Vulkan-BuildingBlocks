@@ -44,10 +44,13 @@ class VBBBufferStatic {
     void free(void);
 
     // Many ways to update this buffer
-    bool updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice& logicalDevice, VkDeviceSize srcOffset = 0,
+    // Easy convienient way
+    bool updateBuffer(void* pData, VkDeviceSize size, VBBDevice& logicalDevice);
+
+    // A little more control, possibly streamlined
+    bool updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice& logicalDevice, VkCommandBuffer cmdBuffer = VK_NULL_HANDLE, VkDeviceSize srcOffset = 0,
                       VkDeviceSize dstOffset = 0, VkDeviceSize size = 0);
 
-    bool updateBuffer(void* pData, VkDeviceSize size, VBBDevice& logicalDevice);
 
   protected:
     VmaAllocator m_VMA = VK_NULL_HANDLE;

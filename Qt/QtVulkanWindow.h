@@ -76,7 +76,7 @@ protected:
     VkBool32                    m_wantDepthStencil = VK_FALSE;
     uint32_t                    m_framesInFlight = 2;
     VkBool32                    m_flipViewport = VK_FALSE;
-    VkClearValue                m_clearColor = {{0.0f, 0.0f, 0.2f, 0.0f}};
+    VkClearValue                m_clearColor = {{{0.0f, 0.0f, 0.2f, 0.0f}}};
     VkClearValue                m_depthStencilClearValue = {{{1.0f, 0}}};
 
 

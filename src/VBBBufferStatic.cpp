@@ -59,8 +59,8 @@ VkResult VBBBufferStatic::createBuffer(VkDeviceSize size) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copy a dynamic buffer (visible by both CPU and GPU) to a static buffer (visible/local only to GPU).
 // Source and destination offsets may be set, and the size, if left -1 will be the entire buffer.
-bool VBBBufferStatic::updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice& logicalDevice, VkDeviceSize srcOffset,
-                                   VkDeviceSize dstOffset, VkDeviceSize size) {
+bool VBBBufferStatic::updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice& logicalDevice, VkCommandBuffer cmdBuffer,
+                                   VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size) {
     VkDevice device = logicalDevice.getDevice();
     VkCommandPool commandPool = logicalDevice.getCommandPool();
     VkQueue queue = logicalDevice.getQueue();
@@ -80,9 +80,13 @@ bool VBBBufferStatic::updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice& l
     copyRegion.srcOffset = srcOffset;
     copyRegion.dstOffset = dstOffset;
     copyRegion.size = size;
-    singleShot.start();
-    vkCmdCopyBuffer(singleShot.getCommandBuffer(), dynamicBuffer.getBuffer(), m_buffer, 1, &copyRegion);
-    singleShot.end();
+    if(cmdBuffer == VK_NULL_HANDLE) {
+        singleShot.start();
+        vkCmdCopyBuffer(singleShot.getCommandBuffer(), dynamicBuffer.getBuffer(), m_buffer, 1, &copyRegion);
+        singleShot.end();
+    } else
+        vkCmdCopyBuffer(cmdBuffer, dynamicBuffer.getBuffer(), m_buffer, 1, &copyRegion);
+
     return VK_SUCCESS;
 }
 
