@@ -59,11 +59,11 @@ VkResult VBBBufferStatic::createBuffer(VkDeviceSize size) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copy a dynamic buffer (visible by both CPU and GPU) to a static buffer (visible/local only to GPU).
 // Source and destination offsets may be set, and the size, if left -1 will be the entire buffer.
-bool VBBBufferStatic::updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice& logicalDevice, VkCommandBuffer cmdBuffer,
+bool VBBBufferStatic::updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice* pLogicalDevice, VkCommandBuffer cmdBuffer,
                                    VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size) {
-    VkDevice device = logicalDevice.getDevice();
-    VkCommandPool commandPool = logicalDevice.getCommandPool();
-    VkQueue queue = logicalDevice.getQueue();
+    VkDevice device = pLogicalDevice->getDevice();
+    VkCommandPool commandPool = pLogicalDevice->getCommandPool();
+    VkQueue queue = pLogicalDevice->getQueue();
 
     // Copy everything?
     if (size == 0) size = dynamicBuffer.getBufferSize();
@@ -90,20 +90,20 @@ bool VBBBufferStatic::updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice& l
     return VK_SUCCESS;
 }
 
-bool VBBBufferStatic::updateBuffer(void* pData, VkDeviceSize size, VBBDevice& logicalDevice) {
+bool VBBBufferStatic::updateBuffer(void* pData, VkDeviceSize size, VBBDevice* pLogicalDevice) {
     VBBBufferDynamic temp(m_VMA);
     temp.createBuffer(size);
     void* p = temp.mapMemory();
     memcpy(p, pData, size);
     temp.unmapMemory();
 
-    updateBuffer(temp, logicalDevice);
+    updateBuffer(temp, pLogicalDevice);
     return true;
 }
 
-VkResult VBBBufferStatic::createBuffer(void* pData, VkDeviceSize size, VBBDevice& logicalDevice) {
+VkResult VBBBufferStatic::createBuffer(void* pData, VkDeviceSize size, VBBDevice* pLogicalDevice) {
     VkResult result = createBuffer(size);
-    if (result == VK_SUCCESS) updateBuffer(pData, size, logicalDevice);
+    if (result == VK_SUCCESS) updateBuffer(pData, size, pLogicalDevice);
 
     return result;
 }

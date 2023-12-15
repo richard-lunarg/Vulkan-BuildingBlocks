@@ -23,10 +23,22 @@
 
 #pragma once
 
+#define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
+#include "vma/vk_mem_alloc.h"
+
+#ifdef VK_NO_PROTOTYPES
+#include <volk/volk.h>
+#else
+#include <vulkan/vulkan.h>
+#endif
+
+
 #include <vector>
 #include <stdint.h>
 #include <math.h>
 #include <stdio.h>
+
 // Define targa header. This is only used locally.
 #pragma pack(1)
 typedef struct {
@@ -68,20 +80,69 @@ class VBBSimpleIndexedMesh {
     void addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* pNormal, VBBSimpleTexCoord* pTexCoord, uint16_t searchOnlyLast = 0);
     void addVertex(void* pVertex, void* pNormal, void* pTexCoord, uint16_t searchOnlyLast = 0);
 
-    VBBSimpleVertex* getVertexPointer(void) { return m_verticies.data(); }
-    VBBSimpleNormal* getNomrlaPointer(void) { return m_normals.data(); }
+    VBBSimpleVertex* getVertexPointer(void) { return m_vertices.data(); }
+    VBBSimpleNormal* getNormalPointer(void) { return m_normals.data(); }
     VBBSimpleTexCoord* getTexCoordPonter(void) { return m_texCoords.data(); }
     uint16_t* getIndexPointer(void) { return m_indexes.data(); }
     uint32_t getIndexCount(void) { return static_cast<uint32_t>(m_indexes.size()); }
-    uint32_t getAttributeCount(void) { return static_cast<uint32_t>(m_verticies.size()); }
+    uint32_t getAttributeCount(void) { return static_cast<uint32_t>(m_vertices.size()); }
 
-    // TBD: Make this class streamable so it can be archived
-    // save(filename)
-    // load(filename)
-    // save/load(stream)
+    bool saveMesh(const char* szMeshFile) {
+        if(szMeshFile != nullptr) {
+            FILE *pFile;
+            pFile = fopen(szMeshFile, "wb");
+            if(pFile == NULL)
+                return false; // Fail gracefully
+
+            uint32_t nIndexCount = m_indexes.size();
+            uint32_t nVertexCount = m_vertices.size();
+            fwrite(&nIndexCount, sizeof(uint32_t), 1, pFile);
+            fwrite(&nVertexCount, sizeof(uint32_t), 1, pFile);
+
+            fwrite(m_indexes.data(), sizeof(uint16_t), nIndexCount, pFile);
+            fwrite(m_vertices.data(), sizeof(VBBSimpleVertex), nVertexCount, pFile);
+            fwrite(m_normals.data(), sizeof(VBBSimpleNormal), nVertexCount, pFile);
+            fwrite(m_texCoords.data(), sizeof(VBBSimpleTexCoord), nVertexCount, pFile);
+            fclose(pFile);
+            return true;
+            }
+
+        return false;
+    }
+
+
+    bool loadMesh(const char* szMeshFile) {
+        FILE *pFile;
+        pFile = fopen(szMeshFile, "rb");
+        if(pFile != NULL) { // Falls through to build
+
+            // Get counts
+            uint32_t nIndexCount;
+            uint32_t nVertexCount;
+            fread(&nIndexCount, sizeof(uint32_t), 1, pFile);
+            fread(&nVertexCount, sizeof(uint32_t), 1, pFile);
+
+            // Allocate memory
+            m_indexes.reserve(nIndexCount);
+            m_vertices.reserve(nVertexCount);
+            m_normals.reserve(nVertexCount);
+            m_texCoords.reserve(nVertexCount);
+
+            // Read it in
+            fread(m_indexes.data(), sizeof(uint16_t), nIndexCount, pFile);
+            fread(m_vertices.data(), sizeof(VBBSimpleVertex), nVertexCount, pFile);
+            fread(m_normals.data(), sizeof(VBBSimpleNormal), nVertexCount, pFile);
+            fread(m_texCoords.data(), sizeof(VBBSimpleTexCoord), nVertexCount, pFile);
+
+            fclose(pFile);
+            return true;
+            }
+
+        return false;
+    }
 
   protected:
-    std::vector<VBBSimpleVertex> m_verticies;
+    std::vector<VBBSimpleVertex> m_vertices;
     std::vector<VBBSimpleNormal> m_normals;
     std::vector<VBBSimpleTexCoord> m_texCoords;
     std::vector<uint16_t> m_indexes;

@@ -26,12 +26,12 @@
 #include "VBBTexture.h"
 #include "VBBSingleShotCommand.h"
 
-VBBTexture::VBBTexture(VmaAllocator allocator, VBBDevice &logicalDevice) {
+VBBTexture::VBBTexture(VmaAllocator allocator, VBBDevice* pLogicalDevice) {
     m_VMA = allocator;
-    physicalDevice = logicalDevice.getPhysicalDeviceHandle();
-    m_Device = logicalDevice.getDevice();
-    graphicsQueue = logicalDevice.getQueue();
-    commandPool = logicalDevice.getCommandPool();
+    physicalDevice = pLogicalDevice->getPhysicalDeviceHandle();
+    m_Device = pLogicalDevice->getDevice();
+    graphicsQueue = pLogicalDevice->getQueue();
+    commandPool = pLogicalDevice->getCommandPool();
     mipMapLevels = 1;
 }
 
@@ -155,7 +155,7 @@ void VBBTexture::createSampler() {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Load a raw blob of data into a texture
 /// TBD: Should be able to get channels from format... just say'n.
-bool VBBTexture::loadRawTexture(void *pImageData, VkFormat format, uint32_t channels, uint32_t width, uint32_t height,
+bool VBBTexture::loadRawTexture(const void *pImageData, VkFormat format, uint32_t channels, uint32_t width, uint32_t height,
                                 uint32_t totalBytes, int mipLevels) {
     imageSize = totalBytes;
 

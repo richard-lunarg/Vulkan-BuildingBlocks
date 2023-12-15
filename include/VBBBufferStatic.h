@@ -37,7 +37,7 @@ class VBBBufferStatic {
     ~VBBBufferStatic(void);
 
     VkResult createBuffer(VkDeviceSize size);
-    VkResult createBuffer(void* pData, VkDeviceSize size, VBBDevice& logicalDevice);
+    VkResult createBuffer(void* pData, VkDeviceSize size, VBBDevice* pLogicalDevice);
 
     inline VkBuffer getBuffer(void) { return m_buffer; }
     inline size_t getBufferSize(void) { return m_bufferSize; }
@@ -45,10 +45,10 @@ class VBBBufferStatic {
 
     // Many ways to update this buffer
     // Easy convienient way
-    bool updateBuffer(void* pData, VkDeviceSize size, VBBDevice& logicalDevice);
+    bool updateBuffer(void* pData, VkDeviceSize size, VBBDevice* pLogicalDevice);
 
     // A little more control, possibly streamlined
-    bool updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice& logicalDevice, VkCommandBuffer cmdBuffer = VK_NULL_HANDLE, VkDeviceSize srcOffset = 0,
+    bool updateBuffer(VBBBufferDynamic& dynamicBuffer, VBBDevice* pLogicalDevice, VkCommandBuffer cmdBuffer = VK_NULL_HANDLE, VkDeviceSize srcOffset = 0,
                       VkDeviceSize dstOffset = 0, VkDeviceSize size = 0);
 
 

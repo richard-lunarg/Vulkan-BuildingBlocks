@@ -43,7 +43,7 @@
 
 class VBBTexture {
   public:
-    VBBTexture(VmaAllocator Allocator, VBBDevice& logicalDevice);
+    VBBTexture(VmaAllocator Allocator, VBBDevice* pLogicalDevice);
     ~VBBTexture();
 
     VkSampler getSampler(void) { return textureSampler; }
@@ -54,7 +54,7 @@ class VBBTexture {
     uint32_t getHeight() { return textureHeight; }
 
     // Create a texture from raw data
-    bool loadRawTexture(void* pImageData, VkFormat format, uint32_t channels, uint32_t width, uint32_t height, uint32_t totalBytes,
+    bool loadRawTexture(const void* pImageData, VkFormat format, uint32_t channels, uint32_t width, uint32_t height, uint32_t totalBytes,
                         int mipLevels = 1);
     bool loadRawTexture(VBBBufferDynamic& imageBuffer, VkFormat format, uint32_t channels, uint32_t width, uint32_t height,
                         uint32_t totalBytes, int mipLevels = 1);

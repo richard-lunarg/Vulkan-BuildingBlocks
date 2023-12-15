@@ -35,7 +35,7 @@ static const double VBB_PI = 3.14159265358979323846;
 
 // Just takes a stab at reserving enough space ahead of time to avoid re-allocation
 void VBBSimpleIndexedMesh::startBuilding(uint16_t estimatedVertexCount, float epsilon) {
-    m_verticies.reserve(estimatedVertexCount);
+    m_vertices.reserve(estimatedVertexCount);
     m_normals.reserve(estimatedVertexCount);
     m_texCoords.reserve(estimatedVertexCount);
     m_indexes.reserve(estimatedVertexCount);
@@ -60,17 +60,17 @@ void VBBSimpleIndexedMesh::addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* 
     // Start at the beginning, or use the hint
     uint32_t startIndex = 0;
     if(searchOnlyLast != 0)
-        if (searchOnlyLast < m_indexes.size()) startIndex = static_cast<uint32_t>(m_verticies.size()) - searchOnlyLast;
+        if (searchOnlyLast < m_indexes.size()) startIndex = static_cast<uint32_t>(m_vertices.size()) - searchOnlyLast;
 
-    for (uint32_t i = startIndex; i < m_verticies.size(); i++) {
+    for (uint32_t i = startIndex; i < m_vertices.size(); i++) {
         index = i;
         
         // All we have is vertex positions
         if (pNormal == nullptr && pTexCoord == nullptr) {
-            if (closeEnough(m_verticies[index].x, pVertex->x) && closeEnough(m_verticies[index].y, pVertex->y) &&
-                closeEnough(m_verticies[index].z, pVertex->z)) {
+            if (closeEnough(m_vertices[index].x, pVertex->x) && closeEnough(m_vertices[index].y, pVertex->y) &&
+                closeEnough(m_vertices[index].z, pVertex->z)) {
                 m_indexes.push_back(index);
-                m_verticies.push_back(*pVertex);
+                m_vertices.push_back(*pVertex);
                 return;
             }
             else continue;
@@ -78,8 +78,8 @@ void VBBSimpleIndexedMesh::addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* 
 
         // We have/want all three
         if (pNormal != nullptr && pTexCoord != nullptr) {
-            if (closeEnough(m_verticies[index].x, pVertex->x) && closeEnough(m_verticies[index].y, pVertex->y) &&
-                closeEnough(m_verticies[index].z, pVertex->z) &&
+            if (closeEnough(m_vertices[index].x, pVertex->x) && closeEnough(m_vertices[index].y, pVertex->y) &&
+                closeEnough(m_vertices[index].z, pVertex->z) &&
 
                 closeEnough(m_normals[index].x, pNormal->x) && closeEnough(m_normals[index].y, pNormal->y) &&
                 closeEnough(m_normals[index].z, pNormal->z) &&
@@ -93,8 +93,8 @@ void VBBSimpleIndexedMesh::addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* 
 
         // We have normals, but no texture coordinates
         if (pNormal != nullptr && pTexCoord == nullptr) {
-            if (closeEnough(m_verticies[index].x, pVertex->x) && closeEnough(m_verticies[index].y, pVertex->y) &&
-                closeEnough(m_verticies[index].z, pVertex->z) &&
+            if (closeEnough(m_vertices[index].x, pVertex->x) && closeEnough(m_vertices[index].y, pVertex->y) &&
+                closeEnough(m_vertices[index].z, pVertex->z) &&
 
                 closeEnough(m_normals[index].x, pNormal->x) && closeEnough(m_normals[index].y, pNormal->y) &&
                 closeEnough(m_normals[index].z, pNormal->z)) {
@@ -106,8 +106,8 @@ void VBBSimpleIndexedMesh::addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* 
 
         // We have no normals, but we do have texture coordinates
         if (pNormal == nullptr && pTexCoord != nullptr) {
-            if (closeEnough(m_verticies[index].x, pVertex->x) && closeEnough(m_verticies[index].y, pVertex->y) &&
-                closeEnough(m_verticies[index].z, pVertex->z) &&
+            if (closeEnough(m_vertices[index].x, pVertex->x) && closeEnough(m_vertices[index].y, pVertex->y) &&
+                closeEnough(m_vertices[index].z, pVertex->z) &&
 
                 closeEnough(m_texCoords[index].s, pTexCoord->s) && closeEnough(m_texCoords[index].t, pTexCoord->t)) {
                 m_indexes.push_back(index);
@@ -117,15 +117,15 @@ void VBBSimpleIndexedMesh::addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* 
         }
     }
 
-    m_verticies.push_back(*pVertex);
+    m_vertices.push_back(*pVertex);
     if (pNormal != nullptr) m_normals.push_back(*pNormal);
     if (pTexCoord != nullptr) m_texCoords.push_back(*pTexCoord);
-    if(m_verticies.size() == 1)
+    if(m_vertices.size() == 1)
         m_indexes.push_back(0);
     else
         m_indexes.push_back((index+1));
     
-    assert(m_verticies.size() < 65535);
+    assert(m_vertices.size() < 65535);
 }
 
 
