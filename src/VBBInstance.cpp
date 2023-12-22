@@ -136,7 +136,6 @@ VkResult VBBInstance::createInstance(VkBool32 wantPortability, VkApplicationInfo
     // Turn on any required instance extensions
     inst_info.enabledExtensionCount = (int)m_requiredExtensions.size();
     inst_info.ppEnabledExtensionNames = m_requiredExtensions.data();
-    ;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // Create the Instance

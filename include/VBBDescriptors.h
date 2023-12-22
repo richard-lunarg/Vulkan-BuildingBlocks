@@ -48,9 +48,13 @@ class VBBDescriptors {
   private:
     VkResult m_lastResult = VK_SUCCESS;
     VkDevice m_device = VK_NULL_HANDLE;
+
     VkDescriptorSetLayout m_descriptorSetLayout = VK_NULL_HANDLE;
+
     VkDescriptorPool m_descriptorPool = VK_NULL_HANDLE;
+
     VkDescriptorSet m_descriptorSet = VK_NULL_HANDLE;
 
+    // An array of these is assembled from the init function call
     std::vector<VkDescriptorSetLayoutBinding> m_layoutBindings;
 };

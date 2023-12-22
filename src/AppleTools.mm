@@ -10,11 +10,13 @@
 
 #include "AppleTools.h"
 
-
-
 #import <Foundation/Foundation.h>
 #import <QuartzCore/CAMetalLayer.h>
-#ifndef APPLE_MOBILE
+
+#include <TargetConditionals.h>
+#if TARGET_OS_IPHONE
+#include <UIKit/UIView.h>
+#else
 #import <AppKit/AppKit.h>
 #endif
 
@@ -36,25 +38,19 @@ int detectDarkTheme(void) {
 
 void *makeViewMetalCompatible(void* handle)
 {
-    NSView* view = (NSView*)handle;
+#if TARGET_OS_IPHONE
+    UIView* view = (__bridge UIView*)handle;
+    assert([view isKindOfClass:[UIView class]]);
+
+    void *pLayer =(__bridge void*)view.layer;
+    return pLayer;
+#else
+    NSView* view = (__bridge NSView*)handle;
     assert([view isKindOfClass:[NSView class]]);
 
-    void *pLayer = view.layer;
+    void *pLayer = (__bridge void *)view.layer;
     return pLayer;
-
-//    UIView* view = (__bridge UIView*)handle;
-//    assert([view isKindOfClass:[UIView class]]);
-
-//    if (![view.layer isKindOfClass:[CAMetalLayer class]])
-//        {
-//        [view setLayer:[CAMetalLayer layer]];
-//        [view setWantsLayer:YES];
-//        }
-
-
-//    void *pLayer = view.layer;
-//    return pLayer;
-
+#endif
 }
 
 

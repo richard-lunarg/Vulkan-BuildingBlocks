@@ -1063,16 +1063,16 @@ int main(int argc, char *argv[]) {
      std::cout << "Index count: " << indexCount << std::endl;
      
      pVertexBuffer = new VBBBufferStatic(Allocator);
-     pVertexBuffer->createBuffer(sphere.getVertexPointer(), sizeof(float)*3*attribCount, logicalDevice);
+     pVertexBuffer->createBuffer(sphere.getVertexPointer(), sizeof(float)*3*attribCount, &logicalDevice);
 
      pNormalBuffer = new VBBBufferStatic(Allocator);
-     pNormalBuffer->createBuffer(sphere.getNomrlaPointer(), sizeof(float)*3*attribCount, logicalDevice);
+     pNormalBuffer->createBuffer(sphere.getNormalPointer(), sizeof(float)*3*attribCount, &logicalDevice);
 
      pTexCoordBuffer = new VBBBufferStatic(Allocator);
-     pTexCoordBuffer->createBuffer(sphere.getTexCoordPonter(), sizeof(float)*2*attribCount, logicalDevice);
+     pTexCoordBuffer->createBuffer(sphere.getTexCoordPonter(), sizeof(float)*2*attribCount, &logicalDevice);
 
      pIndexBuffer = new VBBBufferStatic(Allocator);
-     pIndexBuffer->createBuffer(sphere.getIndexPointer(), sizeof(uint16_t)*indexCount, logicalDevice);
+     pIndexBuffer->createBuffer(sphere.getIndexPointer(), sizeof(uint16_t)*indexCount, &logicalDevice);
     
     SDL_Event event;
     bool bDone = false;
