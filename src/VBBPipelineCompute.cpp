@@ -35,14 +35,13 @@ VBBPipelineCompute::~VBBPipelineCompute() {
 // The Canvas contains essential information for the pipeline
 // Shaders must be specified.
 // Push constants and descriptor set layouts are optional
-VkResult VBBPipelineCompute::createPipeline(VkDevice logicalDevice, VBBShaderModule* pComputeShader) {
-    assert(pComputeShader);
+VkResult VBBPipelineCompute::createPipeline(VkDevice logicalDevice, VkShaderModule hShaderModule) {
     m_device = logicalDevice;
 
     VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
     computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-    computeShaderStageInfo.module = pComputeShader->getShaderModule();
+    computeShaderStageInfo.module = hShaderModule;
     computeShaderStageInfo.pName = "main";
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};

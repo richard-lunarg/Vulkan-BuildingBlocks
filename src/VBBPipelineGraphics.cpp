@@ -54,10 +54,8 @@ void VBBPipelineGraphics::addVertexAttributeBinding(uint32_t stride, VkVertexInp
 // The Canvas contains essential information for the pipeline
 // Shaders must be specified.
 // Push constants and descriptor set layouts are optional
-VkResult VBBPipelineGraphics::createPipeline(VBBCanvas* pCanvas, VBBShaderModule* pVertShader, VBBShaderModule* pFragShader) {
-    assert(pCanvas);  // These cannot be null
-    assert(pVertShader);
-    assert(pFragShader);
+VkResult VBBPipelineGraphics::createPipeline(VBBCanvas* pCanvas, VkShaderModule hVertShader, VkShaderModule hFragShader) {
+    assert(pCanvas);
 
     pVulkanCanvas = pCanvas;
     device = pCanvas->getLogicalDevice();
@@ -67,13 +65,13 @@ VkResult VBBPipelineGraphics::createPipeline(VBBCanvas* pCanvas, VBBShaderModule
     // VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = pVertShader->getShaderModule();
+    vertShaderStageInfo.module = hVertShader;
     vertShaderStageInfo.pName = "main";
 
     // VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = pFragShader->getShaderModule();
+    fragShaderStageInfo.module = hFragShader;
     fragShaderStageInfo.pName = "main";
 
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};

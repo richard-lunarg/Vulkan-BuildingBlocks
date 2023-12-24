@@ -48,7 +48,7 @@ class VBBPipelineCompute {
     // Load and save pipeline from/to a file
     // OR NOT... why wrap the Vulkan functions?
 
-    virtual VkResult createPipeline(VkDevice logicalDevice, VBBShaderModule* pComputeShader);
+    virtual VkResult createPipeline(VkDevice logicalDevice, VkShaderModule hShaderModule);
     VkPipeline getPipeline(void) { return m_computePipeline; }
     VkPipelineLayout getPipelineLayout(void) { return m_pipelineLayout; }
     VkResult getLastResult(void) { return m_lastResult; }

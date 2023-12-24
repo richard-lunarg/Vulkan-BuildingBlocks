@@ -79,7 +79,7 @@ class VBBPipelineGraphics {
     // Load and save pipeline from/to a file
     // OR NOT... why wrap the Vulkan functions?
 
-    virtual VkResult createPipeline(VBBCanvas* pCanvas, VBBShaderModule* pVertShader, VBBShaderModule* pFragShader);
+    virtual VkResult createPipeline(VBBCanvas* pCanvas, VkShaderModule hVertShader, VkShaderModule hFragShader);
     VkPipeline getPipeline(void) { return graphicsPipeline; }
     VkPipelineLayout getPipelineLayout(void) { return pipelineLayout; }
     VkResult getLastResult(void) { return m_lastResult; }
