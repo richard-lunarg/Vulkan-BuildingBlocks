@@ -23,6 +23,39 @@
 
 #include "VBBInstance.h"
 #include <string.h>
+#include <iostream>
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData) {
+
+    switch(messageSeverity) {
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            std::cout << "Message severity: Verbose mode." << std::endl;
+            break;
+
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+            std::cout << "Message severity: Informational." << std::endl;
+            break;
+
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+            std::cout << "Message severity: Warning." << std::endl;
+            break;
+
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+            std::cout << "Message severity: Error." << std::endl;
+            break;
+            
+        default:
+            std::cout << "Message severity: Unknown." << std::endl;
+    }
+    std::cout << "validation layer: " << pCallbackData->pMessage << std::endl << std::endl;
+
+    return VK_FALSE;
+}
+
 
 // ********************************************************************************************
 /*  The constructor does not actually make an instance.
@@ -68,6 +101,14 @@ VBBInstance::VBBInstance() {
 // *********************************************************************
 // Simply clean up the instance handle
 VBBInstance::~VBBInstance() {
+    
+    // Cleanup debugger?
+    if(debugMessenger != VK_NULL_HANDLE) {
+        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_instanceHandle, "vkDestroyDebugUtilsMessengerEXT");
+        if (func != nullptr)
+            func(m_instanceHandle, debugMessenger, nullptr);
+    }
+
     if (m_instanceHandle != VK_NULL_HANDLE) vkDestroyInstance(m_instanceHandle, nullptr);
 }
 
@@ -136,12 +177,30 @@ VkResult VBBInstance::createInstance(VkBool32 wantPortability, VkApplicationInfo
     // Turn on any required instance extensions
     inst_info.enabledExtensionCount = (int)m_requiredExtensions.size();
     inst_info.ppEnabledExtensionNames = m_requiredExtensions.data();
-
+    
+    // Turn on the debug callbacks
+    VkDebugUtilsMessengerCreateInfoEXT  debugCreateInfo = {};
+    if(isExtensionRequested(VK_EXT_DEBUG_UTILS_EXTENSION_NAME)) {
+        debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        debugCreateInfo.pfnUserCallback = debugCallback;
+        inst_info.pNext = &debugCreateInfo;
+        m_debuggerOn = VK_TRUE;
+    }
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // Create the Instance
     m_lastResult = vkCreateInstance(&inst_info, NULL, &m_instanceHandle);
     if (m_lastResult != VK_SUCCESS) return m_lastResult;
 
+    // Setup debugger?
+    if(m_debuggerOn) {
+        auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_instanceHandle, "vkCreateDebugUtilsMessengerEXT");
+        if (func != nullptr)
+            func(m_instanceHandle, &debugCreateInfo, nullptr, &debugMessenger);
+    }
+    
     // Once the instance is created, this little bit of memory is
     // acutally not needed, so get rid of it.
     m_availableExtensions.clear();

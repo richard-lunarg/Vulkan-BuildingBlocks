@@ -68,13 +68,24 @@ class VBBInstance {
     inline void addRequiredLayer(const char* layerName) { m_requiredLayers.push_back(layerName); }
 
   protected:
-    VkResult m_lastResult = VK_SUCCESS;            // Most recent Vulkan return code
-    VkInstance m_instanceHandle = VK_NULL_HANDLE;  // Vulkan Instane Handle
-    VkBool32 m_isPortability = VK_FALSE;           // This loader supports the portability enumeration extension
-    uint32_t m_instanceVersion = 0;                // Get the Vulkan instance version
+    VkResult                    m_lastResult = VK_SUCCESS;              // Most recent Vulkan return code
+    VkInstance                  m_instanceHandle = VK_NULL_HANDLE;      // Vulkan Instane Handle
+    VkBool32                    m_isPortability = VK_FALSE;             // This loader supports the portability enumeration extension
+    uint32_t                    m_instanceVersion = 0;                  // Get the Vulkan instance version
+    VkBool32                    m_debuggerOn = VK_FALSE;                // Using debug callback
+    VkDebugUtilsMessengerEXT    debugMessenger = VK_NULL_HANDLE;
 
     std::vector<VkExtensionProperties> m_availableExtensions;  // List of supported instance extension
     std::vector<const char*> m_requiredExtensions;             // List of extensions we must have
     std::vector<VkLayerProperties> m_availableLayers;          // List of available layers
     std::vector<const char*> m_requiredLayers;                 // List of layers we must have
+    
+    bool isExtensionRequested(const char* szExtension)
+    {
+        for(int i = 0; i < m_requiredExtensions.size(); i++)
+            if(strcmp(szExtension, m_requiredExtensions[i]) == 0)
+                return true;
+        
+        return false;
+    }
 };
