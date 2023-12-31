@@ -49,6 +49,8 @@ class VBBTexture {
     VkSampler getSampler(void) { return textureSampler; }
     VkImageView getImageView(void) { return textureImageView; }
     VkFormat getFormat(void) { return imageFormat; }
+    VkImageLayout getLayout(void) { return imageLayout; }
+    void setFinalLayout(VkImageLayout layout) { imageLayout = layout; }
 
     uint32_t getWidth() { return textureWidth; }
     uint32_t getHeight() { return textureHeight; }
@@ -88,6 +90,8 @@ class VBBTexture {
     VkFormat imageFormat;
 
     VkSampler textureSampler = VK_NULL_HANDLE;
+
+    VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     VkPhysicalDevice physicalDevice;
     VkDevice m_Device;

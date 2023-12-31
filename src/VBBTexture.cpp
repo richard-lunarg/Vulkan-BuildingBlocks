@@ -222,7 +222,7 @@ bool VBBTexture::loadRawTexture(VBBBufferDynamic &imageBuffer, VkFormat format, 
     }
 
     // Does this really need to be done.... look above?!?
-    transitionImageLayout(textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    transitionImageLayout(textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageLayout);
 
     createTextureImageView();
     createSampler();
