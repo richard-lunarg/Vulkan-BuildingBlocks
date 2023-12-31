@@ -82,7 +82,7 @@ class VBBInstance {
     
     bool isExtensionRequested(const char* szExtension)
     {
-        for(int i = 0; i < m_requiredExtensions.size(); i++)
+        for(size_t i = 0; i < m_requiredExtensions.size(); i++)
             if(strcmp(szExtension, m_requiredExtensions[i]) == 0)
                 return true;
         

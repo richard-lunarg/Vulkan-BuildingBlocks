@@ -24,12 +24,10 @@
 #include "VBBShaderModule.h"
 #include <memory.h>
 
-#define VBB_USE_SHADER_TOOLCHAIN
-
 #ifdef VBB_USE_SHADER_TOOLCHAIN
+#include <shaderc/shaderc.hpp>
 
 #include <glslang/Include/glslang_c_interface.h>
-
 #endif
 
 
@@ -89,23 +87,33 @@ VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szF
     std::ifstream file(szFullPath, std::ios::ate | std::ios::binary);
     std::vector<char> buffer;
 
-    if (!file.is_open()) return VK_ERROR_UNKNOWN;   // For lack of a better return code
+    if (!file.is_open()) return VK_ERROR_INITIALIZATION_FAILED;   // For lack of a better return code
 
     size_t fileSize = (size_t)file.tellg();
     buffer.resize(fileSize);
     file.seekg(0);
     file.read(buffer.data(), fileSize);
     file.close();
-/*
-    glslang_initialize_process();
 
-    glslang_shader_t* shader = glslang_shader_create((const glslang_input_s*)buffer.data());
-    // glslang_input_s*
-    if(shader == NULL)
+#ifdef VBB_USE_SHADER_TOOLCHAIN
+    // Must link to libshaderc_combined.a for this feature
+    shaderc::Compiler compiler;
+    shaderc::CompileOptions options;
+
+    options.SetOptimizationLevel(shaderc_optimization_level_size);
+
+    shaderc::SpvCompilationResult module =
+        compiler.CompileGlslToSpv(buffer.data(), shaderc_glsl_vertex_shader, szFullPath, options);
+
+    if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
+        std::cout << module.GetErrorMessage();
         return VK_ERROR_INITIALIZATION_FAILED;
+    }
 
-    glslang_shader_delete(shader);
-    glslang_finalize_process();
-*/
-    return VK_SUCCESS;
+    std::vector<uint32_t> src = { module.begin(), module.end() };
+
+    return loadSPIRVSrc(device, src.data(), src.size() * sizeof(uint32_t));
+#else
+   return VK_ERROR_INITIALIZATION_FAILED
+#endif
 }

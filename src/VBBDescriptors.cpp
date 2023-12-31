@@ -37,7 +37,11 @@ VBBDescriptors::~VBBDescriptors(void) {
 
 // ************************************************************************
 // I have some bindings... and they are each for "this type" of buffer, there are count many of them, and they are for "this type"
-// of stage. VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, uint32_t(count), VK_SHADER_STAGE_COMPUTE_BIT Rinse, Repeat...
+// of stage.
+//VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+//binding number
+// VK_SHADER_STAGE_COMPUTE_BIT
+//Rinse, Repeat...
 VkResult VBBDescriptors::init(VkDevice device, uint32_t framesInFlight, uint32_t descriptorCount, ...) {
     m_device = device;
     va_list argList;
@@ -45,9 +49,9 @@ VkResult VBBDescriptors::init(VkDevice device, uint32_t framesInFlight, uint32_t
 
     for (uint32_t i = 0; i < descriptorCount; i++) {
         VkDescriptorSetLayoutBinding binding = {};
-        binding.binding = i;
         binding.descriptorType = va_arg(argList, VkDescriptorType);
-        binding.descriptorCount = va_arg(argList, uint32_t);
+        binding.binding = va_arg(argList, uint32_t);
+        binding.descriptorCount = 1;
         binding.stageFlags = va_arg(argList, VkShaderStageFlagBits);
         binding.pImmutableSamplers = nullptr;
         m_layoutBindings.push_back(binding);
