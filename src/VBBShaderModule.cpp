@@ -114,6 +114,6 @@ VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szF
 
     return loadSPIRVSrc(device, src.data(), src.size() * sizeof(uint32_t));
 #else
-   return VK_ERROR_INITIALIZATION_FAILED
+   return VK_ERROR_INITIALIZATION_FAILED;
 #endif
 }
