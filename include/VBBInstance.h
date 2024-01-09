@@ -35,6 +35,7 @@
 #include <vulkan/vulkan.h>
 #endif
 
+#include <cstring>
 #include <vector>
 
 class VBBInstance {

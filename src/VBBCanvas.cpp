@@ -125,6 +125,7 @@ VkSampleCountFlagBits VBBCanvas::setMSAA(VkSampleCountFlagBits samples) {
                 return m_msaaSamples;
             }
 
+        // Just no msaaa
             m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
             return m_msaaSamples;
     }
@@ -144,7 +145,7 @@ VkResult VBBCanvas::createCanvas(VkSurfaceKHR surface, uint32_t initialWidth, ui
     m_lastResult = vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice, 0, m_surfaceHandle, &bSupported);
     if (m_lastResult != VK_SUCCESS) return m_lastResult;
 
-    if (bSupported == VK_FALSE) return VK_ERROR_UNKNOWN;
+    //if (bSupported == VK_FALSE) return VK_ERROR_UNKNOWN;
 
     uint32_t formatCount;
     m_lastResult = vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, surface, &formatCount, nullptr);

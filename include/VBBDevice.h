@@ -22,7 +22,7 @@
  */
 
 #pragma once
-
+#include <cstring>
 #include "VBBInstance.h"
 
 class VBBDevice {
