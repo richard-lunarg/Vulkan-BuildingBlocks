@@ -144,8 +144,8 @@ VkResult VBBCanvas::createCanvas(VkSurfaceKHR surface, uint32_t initialWidth, ui
     VkBool32 bSupported = VK_FALSE;
     m_lastResult = vkGetPhysicalDeviceSurfaceSupportKHR(m_physicalDevice, 0, m_surfaceHandle, &bSupported);
     if (m_lastResult != VK_SUCCESS) return m_lastResult;
-
-    //if (bSupported == VK_FALSE) return VK_ERROR_UNKNOWN;
+    printf("supported: %d\n", m_lastResult);
+    if (bSupported == VK_FALSE) return VK_ERROR_UNKNOWN;
 
     uint32_t formatCount;
     m_lastResult = vkGetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, surface, &formatCount, nullptr);
@@ -214,6 +214,7 @@ VkResult VBBCanvas::createCanvas(VkSurfaceKHR surface, uint32_t initialWidth, ui
     if (m_lastResult != VK_SUCCESS) return m_lastResult;
 
     createRenderPass();
+    printf("Created render pass!\n");
 
     return resizeCanvas(initialWidth, initialHeight);
 }
@@ -390,7 +391,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     }
 
     createFramebuffers();
-
+    printf("Created framebuffers\n");
     return m_lastResult;
 }
 

@@ -22,7 +22,7 @@
  */
 
 #include "QtVulkanWindow.h"
-
+#include <QGuiApplication>
 
 #ifdef WIN32
 #include <windows.h>
@@ -36,9 +36,10 @@ void *makeViewMetalCompatible(void* handle);
 #endif
 
 #ifdef linux
+#include </home/parallels/Dev/Qt6.5.3/qtbase/include/QtGui/6.5.3/QtGui/qpa/qplatformnativeinterface.h>
 //#include </home/rwright/Dev/Qt6.3.1/include/QtGui/6.3.1/QtGui/qpa/qplatformnativeinterface.h>
 //#include <QtGui/qpa/qplatformnativeinterface.h>
-using namespace QNativeInterface;
+//using namespace QNativeInterface;
 #endif
 
 QtVulkanWindow::QtVulkanWindow(VkInstance vulkanInstance, VmaAllocator allocator, QWindow *parent)
@@ -101,8 +102,8 @@ VkResult QtVulkanWindow::createCanvas(VBBDevice* pLogicalDevice)
     createInfoXCB.pNext = NULL;
     createInfoXCB.flags = 0;
 
-    //QPlatformNativeInterface *nativeInterface;
-    //nativeInterface = QGuiApplication::platformNativeInterface();
+    QPlatformNativeInterface *nativeInterface;
+    nativeInterface = QGuiApplication::platformNativeInterface();
     //QX11Application app;
     //NativeInterface *Interface = qApp->nativeInterface();
     //qApp->nativeInterface();
@@ -110,10 +111,12 @@ VkResult QtVulkanWindow::createCanvas(VBBDevice* pLogicalDevice)
     //Interface *nativeInterface = QGuiApplication::platformIntegration()->nativeInterface();
     //QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     //  mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForWindow("Display",m_compositor->window()));
-    //createInfoXCB.connection = (xcb_connection_t*)nativeInterface->nativeResourceForWindow("connection", this);
+
+    createInfoXCB.connection = (xcb_connection_t*)nativeInterface->nativeResourceForWindow("connection", this);
     createInfoXCB.window = (xcb_window_t)this->winId();
 
     VkResult err = vkCreateXcbSurfaceKHR(vulkanInstance, &createInfoXCB, NULL, &vulkanSurface);
+    printf("Surface return is %d\n", err);
 
 #endif
 
