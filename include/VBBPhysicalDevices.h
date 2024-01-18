@@ -33,7 +33,8 @@
 class VBBPhysicalDevices {
   public:
     VBBPhysicalDevices(VkInstance instance);
-
+    virtual ~VBBPhysicalDevices() {}
+    
     inline uint32_t getDeviceCount(void) { return uint32_t(m_physicalDevices.size()); }
     virtual VkResult createLogicalDevice(VBBDevice* pLogicalDevice, VkQueueFlags queueType = VK_QUEUE_GRAPHICS_BIT,
                                          int nDeviceOverride = -1);

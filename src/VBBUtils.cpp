@@ -34,7 +34,7 @@
 static const double VBB_PI = 3.14159265358979323846;
 
 // Just takes a stab at reserving enough space ahead of time to avoid re-allocation
-void VBBSimpleIndexedMesh::startBuilding(uint16_t estimatedVertexCount, float epsilon) {
+void VBBSimpleIndexedMesh::startBuilding(uint32_t estimatedVertexCount, float epsilon) {
     m_vertices.reserve(estimatedVertexCount);
     m_normals.reserve(estimatedVertexCount);
     m_texCoords.reserve(estimatedVertexCount);
@@ -43,7 +43,7 @@ void VBBSimpleIndexedMesh::startBuilding(uint16_t estimatedVertexCount, float ep
     m_epsilon = epsilon;
 }
 
-void VBBSimpleIndexedMesh::addVertex(void* pVertex, void* pNormal, void* pTexCoord, uint16_t searchOnlyLast) {
+void VBBSimpleIndexedMesh::addVertex(void* pVertex, void* pNormal, void* pTexCoord, uint32_t searchOnlyLast) {
     addVertex(static_cast<VBBSimpleVertex*>(pVertex), static_cast<VBBSimpleNormal*>(pNormal),
               static_cast<VBBSimpleTexCoord*>(pTexCoord), searchOnlyLast);
 }
@@ -54,7 +54,7 @@ void VBBSimpleIndexedMesh::addVertex(void* pVertex, void* pNormal, void* pTexCoo
 // searchOnlyLast = 0 -> search ALL of the previously submitted vertices
 // searchOnlyLast > 0 -> search only the last <searchOnlyLast> values for a match
 void VBBSimpleIndexedMesh::addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* pNormal, VBBSimpleTexCoord* pTexCoord,
-                                     uint16_t searchOnlyLast) {
+                                     uint32_t searchOnlyLast) {
     uint32_t index = 0;  // Index is currently unknown
 
     // Start at the beginning, or use the hint

@@ -76,14 +76,14 @@ class VBBSimpleIndexedMesh {
         float t;
     };
 
-    void startBuilding(uint16_t estimatedVertexCount, float epsilon = 0.0000001);
-    void addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* pNormal, VBBSimpleTexCoord* pTexCoord, uint16_t searchOnlyLast = 0);
-    void addVertex(void* pVertex, void* pNormal, void* pTexCoord, uint16_t searchOnlyLast = 0);
+    void startBuilding(uint32_t estimatedVertexCount, float epsilon = 0.0000001);
+    void addVertex(VBBSimpleVertex* pVertex, VBBSimpleNormal* pNormal, VBBSimpleTexCoord* pTexCoord, uint32_t searchOnlyLast = 0);
+    void addVertex(void* pVertex, void* pNormal, void* pTexCoord, uint32_t searchOnlyLast = 0);
 
     VBBSimpleVertex* getVertexPointer(void) { return m_vertices.data(); }
     VBBSimpleNormal* getNormalPointer(void) { return m_normals.data(); }
     VBBSimpleTexCoord* getTexCoordPonter(void) { return m_texCoords.data(); }
-    uint16_t* getIndexPointer(void) { return m_indexes.data(); }
+    uint32_t* getIndexPointer(void) { return m_indexes.data(); }
     uint32_t getIndexCount(void) { return static_cast<uint32_t>(m_indexes.size()); }
     uint32_t getAttributeCount(void) { return static_cast<uint32_t>(m_vertices.size()); }
 
@@ -99,7 +99,7 @@ class VBBSimpleIndexedMesh {
             fwrite(&nIndexCount, sizeof(uint32_t), 1, pFile);
             fwrite(&nVertexCount, sizeof(uint32_t), 1, pFile);
 
-            fwrite(m_indexes.data(), sizeof(uint16_t), nIndexCount, pFile);
+            fwrite(m_indexes.data(), sizeof(uint32_t), nIndexCount, pFile);
             fwrite(m_vertices.data(), sizeof(VBBSimpleVertex), nVertexCount, pFile);
             fwrite(m_normals.data(), sizeof(VBBSimpleNormal), nVertexCount, pFile);
             fwrite(m_texCoords.data(), sizeof(VBBSimpleTexCoord), nVertexCount, pFile);
@@ -123,13 +123,13 @@ class VBBSimpleIndexedMesh {
             fread(&nVertexCount, sizeof(uint32_t), 1, pFile);
 
             // Allocate memory
-            m_indexes.reserve(nIndexCount);
-            m_vertices.reserve(nVertexCount);
-            m_normals.reserve(nVertexCount);
-            m_texCoords.reserve(nVertexCount);
+            m_indexes.resize(nIndexCount);
+            m_vertices.resize(nVertexCount);
+            m_normals.resize(nVertexCount);
+            m_texCoords.resize(nVertexCount);
 
             // Read it in
-            fread(m_indexes.data(), sizeof(uint16_t), nIndexCount, pFile);
+            fread(m_indexes.data(), sizeof(uint32_t), nIndexCount, pFile);
             fread(m_vertices.data(), sizeof(VBBSimpleVertex), nVertexCount, pFile);
             fread(m_normals.data(), sizeof(VBBSimpleNormal), nVertexCount, pFile);
             fread(m_texCoords.data(), sizeof(VBBSimpleTexCoord), nVertexCount, pFile);
@@ -145,7 +145,7 @@ class VBBSimpleIndexedMesh {
     std::vector<VBBSimpleVertex> m_vertices;
     std::vector<VBBSimpleNormal> m_normals;
     std::vector<VBBSimpleTexCoord> m_texCoords;
-    std::vector<uint16_t> m_indexes;
+    std::vector<uint32_t> m_indexes;
 
     float m_epsilon = 0.0000001;
 
