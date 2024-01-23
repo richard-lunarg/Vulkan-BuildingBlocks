@@ -82,7 +82,7 @@ class VBBSimpleIndexedMesh {
 
     VBBSimpleVertex* getVertexPointer(void) { return m_vertices.data(); }
     VBBSimpleNormal* getNormalPointer(void) { return m_normals.data(); }
-    VBBSimpleTexCoord* getTexCoordPonter(void) { return m_texCoords.data(); }
+    VBBSimpleTexCoord* getTexCoordPointer(void) { return m_texCoords.data(); }
     uint32_t* getIndexPointer(void) { return m_indexes.data(); }
     uint32_t getIndexCount(void) { return static_cast<uint32_t>(m_indexes.size()); }
     uint32_t getAttributeCount(void) { return static_cast<uint32_t>(m_vertices.size()); }

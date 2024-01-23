@@ -657,7 +657,7 @@ void DrawFrame(VkCommandBuffer cmdBuffer)
         VkBuffer normalBuffers = pNormalBuffer->getBuffer();
         vkCmdBindVertexBuffers(cmdBuffer, 1, 1, &normalBuffers, &offsets);
         
-        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdDrawIndexed(cmdBuffer, indexCount, 1, 0, 0, 0);
     }
 
@@ -703,7 +703,7 @@ void DrawFrame(VkCommandBuffer cmdBuffer)
         VkBuffer normalBuffers = pNormalBuffer->getBuffer();
         vkCmdBindVertexBuffers(cmdBuffer, 1, 1, &normalBuffers, &offsets);
         
-        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdDrawIndexed(cmdBuffer, indexCount, 1, 0, 0, 0);
     }
 
@@ -748,7 +748,7 @@ void DrawFrame(VkCommandBuffer cmdBuffer)
         VkBuffer normalBuffers = pNormalBuffer->getBuffer();
         vkCmdBindVertexBuffers(cmdBuffer, 1, 1, &normalBuffers, &offsets);
         
-        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdDrawIndexed(cmdBuffer, indexCount, 1, 0, 0, 0);
     }
 
@@ -793,7 +793,7 @@ void DrawFrame(VkCommandBuffer cmdBuffer)
         VkBuffer normalBuffers = pNormalBuffer->getBuffer();
         vkCmdBindVertexBuffers(cmdBuffer, 1, 1, &normalBuffers, &offsets);
         
-        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdDrawIndexed(cmdBuffer, indexCount, 1, 0, 0, 0);
     }
 
@@ -838,7 +838,7 @@ void DrawFrame(VkCommandBuffer cmdBuffer)
         VkBuffer normalBuffers = pNormalBuffer->getBuffer();
         vkCmdBindVertexBuffers(cmdBuffer, 1, 1, &normalBuffers, &offsets);
         
-        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(cmdBuffer, pIndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdDrawIndexed(cmdBuffer, indexCount, 1, 0, 0, 0);
     }
 
@@ -1042,7 +1042,7 @@ int main(int argc, char *argv[]) {
      pPipeline->setEnableDepthTest(VK_TRUE);
      pPipeline->setEnableDepthWrite(VK_TRUE);
 
-     VkResult lastResult = pPipeline->createPipeline(pVulkanCanvas, &vertexShader, &fragmentShader);
+     VkResult lastResult = pPipeline->createPipeline(pVulkanCanvas, vertexShader.getShaderModule(), fragmentShader.getShaderModule());
      if(lastResult != VK_SUCCESS)
          return lastResult;
 
@@ -1072,7 +1072,7 @@ int main(int argc, char *argv[]) {
      pTexCoordBuffer->createBuffer(sphere.getTexCoordPonter(), sizeof(float)*2*attribCount, &logicalDevice);
 
      pIndexBuffer = new VBBBufferStatic(Allocator);
-     pIndexBuffer->createBuffer(sphere.getIndexPointer(), sizeof(uint16_t)*indexCount, &logicalDevice);
+     pIndexBuffer->createBuffer(sphere.getIndexPointer(), sizeof(uint32_t)*indexCount, &logicalDevice);
     
     SDL_Event event;
     bool bDone = false;

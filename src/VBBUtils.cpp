@@ -316,13 +316,13 @@ void VBBMakeSphere(VBBSimpleIndexedMesh& sphereBatch, double radius, uint32_t iS
             vVertex[3][1] = y * radius;
             vVertex[3][2] = z * radius;
 
-            sphereBatch.addVertex(vVertex[0].data(), vNormal[0].data(), vTexture[0].data(),1);
-            sphereBatch.addVertex(vVertex[1].data(), vNormal[1].data(), vTexture[1].data(),1);
-            sphereBatch.addVertex(vVertex[2].data(), vNormal[2].data(), vTexture[2].data(),1);
+            sphereBatch.addVertex(vVertex[0].data(), vNormal[0].data(), vTexture[0].data());
+            sphereBatch.addVertex(vVertex[1].data(), vNormal[1].data(), vTexture[1].data());
+            sphereBatch.addVertex(vVertex[2].data(), vNormal[2].data(), vTexture[2].data());
 
-            sphereBatch.addVertex(vVertex[1].data(), vNormal[1].data(), vTexture[1].data(),1);
-            sphereBatch.addVertex(vVertex[3].data(), vNormal[3].data(), vTexture[3].data(),1);
-            sphereBatch.addVertex(vVertex[2].data(), vNormal[2].data(), vTexture[2].data(),1);
+            sphereBatch.addVertex(vVertex[1].data(), vNormal[1].data(), vTexture[1].data());
+            sphereBatch.addVertex(vVertex[3].data(), vNormal[3].data(), vTexture[3].data());
+            sphereBatch.addVertex(vVertex[2].data(), vNormal[2].data(), vTexture[2].data());
         }
         t -= dt;
     }
@@ -614,12 +614,11 @@ unsigned char* vbbReadTGABits(const char* szFileName, uint32_t* iWidth, uint32_t
             break;
         case 4:
             *iComponents = 4;
-            *format = VK_FORMAT_R8G8B8A8_UNORM;
+            *format = VK_FORMAT_R8G8B8A8_UNORM; // it's actually BRGA
             break;
         case 1:
             *iComponents = 1;
             *format = VK_FORMAT_R8_UNORM;
-            //*format = VK_FORMAT_B8G8R8_UNORM;
             break;
         default:  // RGB
             break;
