@@ -16,7 +16,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.28.1)
 project(Donut LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
