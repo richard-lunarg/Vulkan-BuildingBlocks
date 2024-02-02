@@ -16,7 +16,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 
-cmake_minimum_required(VERSION 3.28.1)
+cmake_minimum_required(VERSION 3.23.1)
 project(Donut LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -24,10 +24,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Source code in this folder
 file(GLOB FILES_HEADER ./*.h)
-file(GLOB FILES_HEADER ../../*.H)
+file(GLOB FILES_HEADER ../../include/*.h)
 
-#file(GLOB FILES_SOURCE main.cpp $ENV{VULKAN_SDK}/include/volk/volk.c ../../*.cpp ./*.c)
-file(GLOB FILES_SOURCE main.cpp ../../*.cpp ./*.c)
+#file(GLOB FILES_SOURCE main.cpp $ENV{VULKAN_SDK}/include/volk/volk.c ../../src/*.cpp ./*.c)
+file(GLOB FILES_SOURCE main.cpp ../../src/*.cpp ./*.c)
 
 
 add_executable(Donut MACOSX_BUNDLE ${FILES_HEADER} ${FILES_SOURCE} ${CMAKE_CURRENT_SOURCE_DIR}/LunarGIcon.icns)

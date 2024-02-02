@@ -481,7 +481,7 @@ int main(int argc, char *argv[]) {
     vulkanInstance.addRequiredExtension(VK_KHR_SURFACE_EXTENSION_NAME);
         
     // We need this for Apple desktop and mobile devices
-    vulkanInstance.addRequiredExtension("VK_EXT_metal_surface");
+    //vulkanInstance.addRequiredExtension("VK_EXT_metal_surface");
         
     // We need this for our layer demo
     //vulkanInstance.addRequiredLayer("VK_LAYER_LUNARG_api_dump");
@@ -512,7 +512,7 @@ int main(int argc, char *argv[]) {
     logicalDevice.addRequiredDeviceExtension("VK_KHR_swapchain");           // Must always have for drawing
     
     // Try to create the logical device
-    if(VK_SUCCESS != vulkanDevices.createLogicalDevice(logicalDevice)) {
+    if(VK_SUCCESS != vulkanDevices.createLogicalDevice(&logicalDevice)) {
         std::cout << "Could not create logical device." << std::endl;
         return -1;
         }
@@ -585,10 +585,11 @@ int main(int argc, char *argv[]) {
      pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
      VBBShaderModule vertexShader;
-     vertexShader.loadShaderSPIRV(pVulkanCanvas->getLogicalDevice(), StockShader_FakeLight_vert_spv, StockShader_FakeLight_vert_spv_len);
+     vertexShader.loadSPIRVSrc(pVulkanCanvas->getLogicalDevice(), StockShader_FakeLight_vert_spv, StockShader_FakeLight_vert_spv_len);
 
      VBBShaderModule fragmentShader;
-     fragmentShader.loadShaderSPIRV(pVulkanCanvas->getLogicalDevice(), StockShader_FakeLight_frag_spv, StockShader_FakeLight_frag_spv_len);
+     fragmentShader.loadSPIRVSrc(pVulkanCanvas->getLogicalDevice(), StockShader_FakeLight_frag_spv,
+                                  StockShader_FakeLight_frag_spv_len);
 
      pPipeline->setPushConstants(1, &pushConstant);
 
@@ -599,7 +600,7 @@ int main(int argc, char *argv[]) {
      pPipeline->setEnableDepthTest(VK_TRUE);
      pPipeline->setEnableDepthWrite(VK_TRUE);
 
-     VkResult lastResult = pPipeline->createPipeline(pVulkanCanvas, &vertexShader, &fragmentShader);
+     VkResult lastResult = pPipeline->createPipeline(pVulkanCanvas, vertexShader.getShaderModule(), fragmentShader.getShaderModule());
      if(lastResult != VK_SUCCESS)
          return lastResult;
 
@@ -627,17 +628,17 @@ int main(int argc, char *argv[]) {
      pNormalBuffer = new VBBBufferDynamic(Allocator);
      pNormalBuffer->createBuffer(sizeof(float)*3*attribCount);
      pMapped = pNormalBuffer->mapMemory();
-     memcpy(pMapped, torus.getNomrlaPointer(), sizeof(float)*3*attribCount);
+     memcpy(pMapped, torus.getNormalPointer(), sizeof(float)*3*attribCount);
      pNormalBuffer->unmapMemory();
 
      pTexCoordBuffer = new VBBBufferDynamic(Allocator);
      pTexCoordBuffer->createBuffer(sizeof(float)*2*attribCount);
      pMapped = pTexCoordBuffer->mapMemory();
-     memcpy(pMapped, torus.getTexCoordPonter(), sizeof(float)*2*attribCount);
+     memcpy(pMapped, torus.getTexCoordPointer(), sizeof(float)*2*attribCount);
      pTexCoordBuffer->unmapMemory();
 
      pIndexBuffer = new VBBBufferStatic(Allocator);
-     pIndexBuffer->createBuffer(torus.getIndexPointer(), sizeof(uint16_t)*indexCount, logicalDevice);
+     pIndexBuffer->createBuffer(torus.getIndexPointer(), sizeof(uint32_t)*indexCount, &logicalDevice);
     SDL_Event event;
     bool bDone = false;
     while (!bDone) {
