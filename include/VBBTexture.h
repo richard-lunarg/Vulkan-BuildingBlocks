@@ -65,6 +65,7 @@ class VBBTexture {
     // Defaults, override before loading texture
     VkFilter minFilter = VK_FILTER_LINEAR;
     VkFilter magFilter = VK_FILTER_LINEAR;
+    VkImageTiling imageTiling = VK_IMAGE_TILING_OPTIMAL;
 
   protected:
     void createTextureImageView(void);

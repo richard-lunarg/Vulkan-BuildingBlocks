@@ -68,6 +68,8 @@ class VBBTexturStreaming {
     // Defaults, overwrite before loading texture
     VkFilter minFilter = VK_FILTER_NEAREST;
     VkFilter magFilter = VK_FILTER_NEAREST;
+    VkImageTiling imageTiling = VK_IMAGE_TILING_OPTIMAL;
+
 
   protected:
     void createImageView(void);

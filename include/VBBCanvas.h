@@ -77,6 +77,8 @@ class VBBCanvas {
     VkCommandBuffer startRendering(void);
     VkResult doneRendering(void);
 
+    VmaAllocator getAllocator(void) { return m_vma; }
+    VBBDevice* getVBBDevice(void) { return pDevice; }
     VkRenderPass getRenderPass(void) { return m_renderPass; }
     VkDevice getLogicalDevice(void) { return m_device; }
     VBBDevice* getDevice(void) { return pDevice; }
