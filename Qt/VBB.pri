@@ -20,6 +20,7 @@ HEADERS +=  $$PWD/../include/VBBInstance.h \
             $$PWD/../include/VBBTexture.h \
             $$PWD/../include/VBBTextureStreaming.h \
             $$PWD/../include/VBBUtils.h \
+            $$PWD/../include/VBBUtilsUnitAxes.h \
             $$PWD/QtVulkanWindow.h
 
 
@@ -38,6 +39,7 @@ SOURCES +=  $$PWD/../src/VBBInstance.cpp \
             $$PWD/../src/VBBTexture.cpp \
             $$PWD/../src/VBBTextureStreaming.cpp \
             $$PWD/../src/VBBUtils.cpp \
+            $$PWD/../src/VBBUtilsUnitAxes.cpp \
             $$PWD/QtVulkanWindow.cpp
 
             

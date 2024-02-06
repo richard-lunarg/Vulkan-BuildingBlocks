@@ -79,8 +79,10 @@ class VBBCanvas {
 
     VkRenderPass getRenderPass(void) { return m_renderPass; }
     VkDevice getLogicalDevice(void) { return m_device; }
+    VBBDevice* getDevice(void) { return pDevice; }
     VkSampleCountFlagBits getMSAA(void) { return m_msaaSamples; }
     VkBool32 getDepthStencil(void) { return m_wantDepthStencil; }
+    VmaAllocator getVMA(void) { return m_vma; }
 
   protected:
     VkResult createDepthStencil(void);
