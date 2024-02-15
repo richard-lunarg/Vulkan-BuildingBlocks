@@ -85,6 +85,7 @@ class VBBCanvas {
     VkSampleCountFlagBits getMSAA(void) { return m_msaaSamples; }
     VkBool32 getDepthStencil(void) { return m_wantDepthStencil; }
     VmaAllocator getVMA(void) { return m_vma; }
+    VkQueue getQueue(void) { return pDevice->getQueue(); }
 
   protected:
     VkResult createDepthStencil(void);

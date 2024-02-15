@@ -328,6 +328,10 @@ static unsigned int StockShader_FakeLight_frag_spv_len = 900;
 // Destroy the fence
 VBBUtilsUnitAxes::~VBBUtilsUnitAxes(void) {
 
+    // Hold on there sonny boy... we can't be deleting objects that may
+    // still be in use
+    if (m_pCanvas) vkQueueWaitIdle(m_pCanvas->getQueue());
+
     delete pPipeline;
 
     delete pVertexBufferSphere;
@@ -631,5 +635,7 @@ VkResult VBBUtilsUnitAxes::renderAxes(glm::mat4& modelView, glm::mat4& proj, VkC
     packagePushConstants(pc, modelView, mvp);
     vkCmdPushConstants(cmdBuffer, pPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushConstantDef), &pc);
     drawCone(cmdBuffer);
+
+    return VK_SUCCESS;
 }
 

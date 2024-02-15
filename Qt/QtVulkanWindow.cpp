@@ -56,11 +56,12 @@ QtVulkanWindow::QtVulkanWindow(VkInstance vulkanInstance, VmaAllocator allocator
 
 QtVulkanWindow::~QtVulkanWindow()
 {
+
     delete pVulkanCanvas;
 
-    if(pDevice != nullptr) {
+    if(pDevice != nullptr)
         vkDestroySurfaceKHR(pDevice->getInstance(), vulkanSurface, nullptr);
-    }
+
 }
 
 VkResult QtVulkanWindow::createCanvas(VBBDevice* pLogicalDevice)
