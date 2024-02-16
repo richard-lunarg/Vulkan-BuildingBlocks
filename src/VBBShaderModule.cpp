@@ -74,6 +74,28 @@ VkResult VBBShaderModule::loadSPIRVSrc(const VkDevice device, void *szShaderSrc,
 // *******************************************************************************
 // Load a shader file, compile it, and create the shader module
 #ifdef VBB_USE_SHADER_TOOLCHAIN
+
+VkResult VBBShaderModule::loadGLSLANGSrc(const VkDevice device, const char *szSrc, shaderc_shader_kind kind)
+{
+    // Must link to libshaderc_combined.a for this feature
+    shaderc::Compiler compiler;
+    shaderc::CompileOptions options;
+
+    options.SetOptimizationLevel(shaderc_optimization_level_size);
+
+    shaderc::SpvCompilationResult module =
+        compiler.CompileGlslToSpv(szSrc, kind, "ShaderSource", options);
+
+    if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
+        std::cout << module.GetErrorMessage();
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    std::vector<uint32_t> src = { module.begin(), module.end() };
+
+    return loadSPIRVSrc(device, src.data(), src.size() * sizeof(uint32_t));
+}
+
 VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szFullPath, shaderc_shader_kind kind)
 {
     m_device = device;
@@ -90,24 +112,7 @@ VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szF
     file.seekg(0, std::ios_base::beg);
     file.read(buffer.data(), fileSize);
     file.close();
-    printf("Shader Code************:\n%s\n******\n", buffer.data());
 
-    // Must link to libshaderc_combined.a for this feature
-    shaderc::Compiler compiler;
-    shaderc::CompileOptions options;
-
-    options.SetOptimizationLevel(shaderc_optimization_level_size);
-
-    shaderc::SpvCompilationResult module =
-        compiler.CompileGlslToSpv(buffer.data(), kind, szFullPath, options);
-
-    if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
-        std::cout << module.GetErrorMessage();
-        return VK_ERROR_INITIALIZATION_FAILED;
-    }
-
-    std::vector<uint32_t> src = { module.begin(), module.end() };
-
-    return loadSPIRVSrc(device, src.data(), src.size() * sizeof(uint32_t));
+    return loadGLSLANGSrc(device, buffer.data(), kind);
 }
 #endif

@@ -51,6 +51,7 @@ class VBBShaderModule {
 
 #ifdef VBB_USE_SHADER_TOOLCHAIN
     VkResult loadGLSLANGFile(const VkDevice device, const char *szFullPath, shaderc_shader_kind kind);
+    VkResult loadGLSLANGSrc(const VkDevice device, const char *szSrc, shaderc_shader_kind kind);
 #endif
 
     VkShaderModule getShaderModule(void) { return m_shaderModule; }
