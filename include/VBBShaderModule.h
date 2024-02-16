@@ -35,6 +35,12 @@
 #include <vulkan/vulkan.h>
 #endif
 
+#ifdef VBB_USE_SHADER_TOOLCHAIN
+#include <shaderc/shaderc.hpp>
+#include <glslang/Include/glslang_c_interface.h>
+#endif
+
+
 class VBBShaderModule {
   public:
     VBBShaderModule();
@@ -43,7 +49,9 @@ class VBBShaderModule {
     VkResult loadSPIRVFile(const VkDevice device, const char *szFullPath);
     VkResult loadSPIRVSrc(const VkDevice device, void *szShaderSrc, uint32_t sizeBytes);
 
-    VkResult loadGLSLANGFile(const VkDevice device, const char *szFullPath);
+#ifdef VBB_USE_SHADER_TOOLCHAIN
+    VkResult loadGLSLANGFile(const VkDevice device, const char *szFullPath, shaderc_shader_kind kind);
+#endif
 
     VkShaderModule getShaderModule(void) { return m_shaderModule; }
 

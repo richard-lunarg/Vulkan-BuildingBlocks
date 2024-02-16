@@ -24,12 +24,6 @@
 #include "VBBShaderModule.h"
 #include <memory.h>
 
-#ifdef VBB_USE_SHADER_TOOLCHAIN
-#include <shaderc/shaderc.hpp>
-
-#include <glslang/Include/glslang_c_interface.h>
-#endif
-
 
 #define SPIRV_MAGIC 0x07230203
 
@@ -79,7 +73,8 @@ VkResult VBBShaderModule::loadSPIRVSrc(const VkDevice device, void *szShaderSrc,
 
 // *******************************************************************************
 // Load a shader file, compile it, and create the shader module
-VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szFullPath)
+#ifdef VBB_USE_SHADER_TOOLCHAIN
+VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szFullPath, shaderc_shader_kind kind)
 {
     m_device = device;
 
@@ -90,13 +85,13 @@ VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szF
     if (!file.is_open()) return VK_ERROR_INITIALIZATION_FAILED;   // For lack of a better return code
 
     size_t fileSize = (size_t)file.tellg();
-    buffer.resize(fileSize+1);  // Hey, we need a null character at the end
+    buffer.resize(fileSize+2);  // Hey, we need a null character at the end
+
     file.seekg(0, std::ios_base::beg);
     file.read(buffer.data(), fileSize);
     file.close();
     printf("Shader Code************:\n%s\n******\n", buffer.data());
 
-#ifdef VBB_USE_SHADER_TOOLCHAIN
     // Must link to libshaderc_combined.a for this feature
     shaderc::Compiler compiler;
     shaderc::CompileOptions options;
@@ -104,7 +99,7 @@ VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szF
     options.SetOptimizationLevel(shaderc_optimization_level_size);
 
     shaderc::SpvCompilationResult module =
-        compiler.CompileGlslToSpv(buffer.data(), shaderc_glsl_vertex_shader, szFullPath, options);
+        compiler.CompileGlslToSpv(buffer.data(), kind, szFullPath, options);
 
     if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
         std::cout << module.GetErrorMessage();
@@ -114,7 +109,5 @@ VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szF
     std::vector<uint32_t> src = { module.begin(), module.end() };
 
     return loadSPIRVSrc(device, src.data(), src.size() * sizeof(uint32_t));
-#else
-   return VK_ERROR_INITIALIZATION_FAILED;
-#endif
 }
+#endif
