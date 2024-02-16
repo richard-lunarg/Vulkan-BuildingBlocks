@@ -24,3 +24,4 @@ void main(void) {
     
     vFragColor = vec4(fDot, fDot, fDot, 1.0) * vColor * texture(texSampler, vTexCoord);
     }
+

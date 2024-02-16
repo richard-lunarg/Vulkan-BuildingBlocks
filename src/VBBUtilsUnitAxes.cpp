@@ -327,11 +327,6 @@ static unsigned int StockShader_FakeLight_frag_spv_len = 900;
 // ********************************************************************
 // Destroy the fence
 VBBUtilsUnitAxes::~VBBUtilsUnitAxes(void) {
-
-    // Hold on there sonny boy... we can't be deleting objects that may
-    // still be in use
-    if (m_pCanvas) vkQueueWaitIdle(m_pCanvas->getQueue());
-
     delete pPipeline;
 
     delete pVertexBufferSphere;

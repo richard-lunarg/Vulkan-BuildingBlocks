@@ -84,16 +84,17 @@ VkResult VBBShaderModule::loadGLSLANGFile(const VkDevice device, const char *szF
     m_device = device;
 
     // Read the file in
-    std::ifstream file(szFullPath, std::ios::ate | std::ios::binary);
+    std::ifstream file(szFullPath, std::ios::ate);
     std::vector<char> buffer;
 
     if (!file.is_open()) return VK_ERROR_INITIALIZATION_FAILED;   // For lack of a better return code
 
     size_t fileSize = (size_t)file.tellg();
-    buffer.resize(fileSize);
-    file.seekg(0);
+    buffer.resize(fileSize+1);  // Hey, we need a null character at the end
+    file.seekg(0, std::ios_base::beg);
     file.read(buffer.data(), fileSize);
     file.close();
+    printf("Shader Code************:\n%s\n******\n", buffer.data());
 
 #ifdef VBB_USE_SHADER_TOOLCHAIN
     // Must link to libshaderc_combined.a for this feature

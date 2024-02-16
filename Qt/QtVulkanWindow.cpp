@@ -56,7 +56,7 @@ QtVulkanWindow::QtVulkanWindow(VkInstance vulkanInstance, VmaAllocator allocator
 
 QtVulkanWindow::~QtVulkanWindow()
 {
-
+    if (pVulkanCanvas) vkQueueWaitIdle(pVulkanCanvas->getQueue());
     delete pVulkanCanvas;
 
     if(pDevice != nullptr)
@@ -167,6 +167,7 @@ void QtVulkanWindow::resizeEvent(QResizeEvent *ev)
 
 void QtVulkanWindow::closeEvent(QCloseEvent *event)
 {
+    if (pVulkanCanvas) vkQueueWaitIdle(pVulkanCanvas->getQueue());
     delete pVulkanCanvas;
     pVulkanCanvas = nullptr;
 
