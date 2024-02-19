@@ -16,7 +16,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Copyright © 2023 Richard S. Wright Jr. (richard@lunarg.com)
+ * Copyright © 2023-2024 Richard S. Wright Jr. (richard@lunarg.com)
  *
  * This software is part of the Vulkan Building Blocks
  */
@@ -99,7 +99,7 @@ class VBBCanvas {
 
     VkResult m_lastResult = VK_SUCCESS;
 
-    VkExtent2D screenExtent2D;
+    VkExtent2D m_screenExtent2D;
 
     VkFormat colorFormat = VK_FORMAT_B8G8R8A8_UNORM;                 // Widely available, almost deFacto
     VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;  // Widely available, almost deFacto
@@ -111,20 +111,20 @@ class VBBCanvas {
     uint32_t imageIndex = 0;
     uint32_t currentFrame = 0;
     std::vector<VkImage> swapchainImages;
-    std::vector<VkImageView> swapchainImageViews;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
+    std::vector<VkImageView> m_swapchainImageViews;
+    std::vector<VkFramebuffer> m_swapChainFramebuffers;
 
-    std::vector<VkSemaphore> imageAvailableSemaphores;
-    std::vector<VkSemaphore> renderFinishedSemaphores;
-    std::vector<VBBFence> inFlightFences;
+    std::vector<VkSemaphore> m_imageAvailableSemaphores;
+    std::vector<VkSemaphore> m_renderFinishedSemaphores;
+    std::vector<VBBFence> m_inFlightFences;
 
-    VkFormat depthStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
-    VkImage depthStencilImage = VK_NULL_HANDLE;
-    VkImageView depthStencilImageView = VK_NULL_HANDLE;
-    VmaAllocation depthStencilAllocation;
+    VkFormat m_depthStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
+    VkImage m_depthStencilImage = VK_NULL_HANDLE;
+    VkImageView m_depthStencilImageView = VK_NULL_HANDLE;
+    VmaAllocation m_depthStencilAllocation;
 
-    VkImage msaaColorImage = VK_NULL_HANDLE;
-    VkImageView msaaColorImageView = VK_NULL_HANDLE;
+    VkImage m_msaaColorImage = VK_NULL_HANDLE;
+    VkImageView m_msaaColorImageView = VK_NULL_HANDLE;
     VmaAllocation m_msaaColorAllocation;
 
     std::vector<VkCommandBuffer> m_commandBuffers;

@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Copyright © 2023 Richard S. Wright Jr. (richard@lunarg.com)
+ * Copyright © 2023-2024 Richard S. Wright Jr. (richard@lunarg.com)
  *
  * This software is part of the Vulkan Building Blocks
  *
@@ -74,7 +74,7 @@ class VBBInstance {
     VkBool32                    m_isPortability = VK_FALSE;             // This loader supports the portability enumeration extension
     uint32_t                    m_instanceVersion = 0;                  // Get the Vulkan instance version
     VkBool32                    m_debuggerOn = VK_FALSE;                // Using debug callback
-    VkDebugUtilsMessengerEXT    debugMessenger = VK_NULL_HANDLE;
+    VkDebugUtilsMessengerEXT    m_debugMessenger = VK_NULL_HANDLE;
 
     std::vector<VkExtensionProperties> m_availableExtensions;  // List of supported instance extension
     std::vector<const char*> m_requiredExtensions;             // List of extensions we must have

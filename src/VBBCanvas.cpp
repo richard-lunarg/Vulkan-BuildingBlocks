@@ -16,7 +16,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Copyright © 2023 Richard S. Wright Jr. (richard@lunarg.com)
+ * Copyright © 2023-2024 Richard S. Wright Jr. (richard@lunarg.com)
  *
  * This software is part of the Vulkan Building Blocks
  */
@@ -36,34 +36,34 @@ VBBCanvas::~VBBCanvas(void) {
     if (m_commandBuffers.size() != 0 && pDevice != nullptr)
         pDevice->releaseCommandBuffers(m_commandBuffers.data(), static_cast<uint32_t>(m_commandBuffers.size()));
 
-    if (swapchainImageViews.size() != 0) {
-        for (auto imageView : swapchainImageViews) vkDestroyImageView(m_device, imageView, nullptr);
+    if (m_swapchainImageViews.size() != 0) {
+        for (auto imageView : m_swapchainImageViews) vkDestroyImageView(m_device, imageView, nullptr);
 
         vkDestroySwapchainKHR(m_device, swapChain, nullptr);
     }
 
-    if (swapChainFramebuffers.size() != 0) {
-        for (auto framebuffer : swapChainFramebuffers) vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+    if (m_swapChainFramebuffers.size() != 0) {
+        for (auto framebuffer : m_swapChainFramebuffers) vkDestroyFramebuffer(m_device, framebuffer, nullptr);
     }
 
-    for (size_t i = 0; i < imageAvailableSemaphores.size(); i++) vkDestroySemaphore(m_device, imageAvailableSemaphores[i], nullptr);
+    for (size_t i = 0; i < m_imageAvailableSemaphores.size(); i++) vkDestroySemaphore(m_device, m_imageAvailableSemaphores[i], nullptr);
 
-    for (size_t i = 0; i < renderFinishedSemaphores.size(); i++) vkDestroySemaphore(m_device, renderFinishedSemaphores[i], nullptr);
+    for (size_t i = 0; i < m_renderFinishedSemaphores.size(); i++) vkDestroySemaphore(m_device, m_renderFinishedSemaphores[i], nullptr);
 
-    for (size_t i = 0; i < inFlightFences.size(); i++) inFlightFences[i].destroyFence();
+    for (size_t i = 0; i < m_inFlightFences.size(); i++) m_inFlightFences[i].destroyFence();
 
     if (m_renderPass != VK_NULL_HANDLE) {
         vkDestroyRenderPass(m_device, m_renderPass, nullptr);
         m_renderPass = VK_NULL_HANDLE;
     }
 
-    if (depthStencilImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, depthStencilImageView, nullptr);
+    if (m_depthStencilImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_depthStencilImageView, nullptr);
 
-    if (depthStencilAllocation != VK_NULL_HANDLE) vmaDestroyImage(m_vma, depthStencilImage, depthStencilAllocation);
+    if (m_depthStencilAllocation != VK_NULL_HANDLE) vmaDestroyImage(m_vma, m_depthStencilImage, m_depthStencilAllocation);
 
-    if (msaaColorImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, msaaColorImageView, nullptr);
+    if (m_msaaColorImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_msaaColorImageView, nullptr);
 
-    if (msaaColorImage != VK_NULL_HANDLE) vmaDestroyImage(m_vma, msaaColorImage, m_msaaColorAllocation);
+    if (m_msaaColorImage != VK_NULL_HANDLE) vmaDestroyImage(m_vma, m_msaaColorImage, m_msaaColorAllocation);
 }
 
 // **************************************************************************
@@ -187,23 +187,23 @@ VkResult VBBCanvas::createCanvas(VkSurfaceKHR surface, uint32_t initialWidth, ui
 
     // Figure out what depth/stencil format we want (or can use)
     // TBD: THIS IS SUPPORTED WIDELY, IT WILL DO FOR NOW
-    depthStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
+    m_depthStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
 
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    imageAvailableSemaphores.resize(m_framesInFlight);
-    renderFinishedSemaphores.resize(m_framesInFlight);
-    inFlightFences.resize(m_framesInFlight);
+    m_imageAvailableSemaphores.resize(m_framesInFlight);
+    m_renderFinishedSemaphores.resize(m_framesInFlight);
+    m_inFlightFences.resize(m_framesInFlight);
 
     for (size_t i = 0; i < m_framesInFlight; i++) {
-        m_lastResult = vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]);
+        m_lastResult = vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]);
         if (m_lastResult != VK_SUCCESS) return m_lastResult;
 
-        m_lastResult = vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]);
+        m_lastResult = vkCreateSemaphore(m_device, &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]);
         if (m_lastResult != VK_SUCCESS) return m_lastResult;
 
-        m_lastResult = inFlightFences[i].createFence(m_device, VK_FENCE_CREATE_SIGNALED_BIT);
+        m_lastResult = m_inFlightFences[i].createFence(m_device, VK_FENCE_CREATE_SIGNALED_BIT);
         if (m_lastResult != VK_SUCCESS) return m_lastResult;
     }
 
@@ -220,20 +220,20 @@ VkResult VBBCanvas::createCanvas(VkSurfaceKHR surface, uint32_t initialWidth, ui
 // ***************************************************************************
 // Create image and view for the depth/stencil buffer
 VkResult VBBCanvas::createDepthStencil(void) {
-    if (depthStencilImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, depthStencilImageView, nullptr);
+    if (m_depthStencilImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_depthStencilImageView, nullptr);
 
-    if (depthStencilImage != VK_NULL_HANDLE) vmaDestroyImage(m_vma, depthStencilImage, depthStencilAllocation);
+    if (m_depthStencilImage != VK_NULL_HANDLE) vmaDestroyImage(m_vma, m_depthStencilImage, m_depthStencilAllocation);
 
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = screenExtent2D.width;
-    imageInfo.extent.height = screenExtent2D.height;
+    imageInfo.extent.width = m_screenExtent2D.width;
+    imageInfo.extent.height = m_screenExtent2D.height;
     imageInfo.samples = m_msaaSamples;
     imageInfo.extent.depth = 1;
     imageInfo.mipLevels = 1;
     imageInfo.arrayLayers = 1;
-    imageInfo.format = depthStencilFormat;
+    imageInfo.format = m_depthStencilFormat;
     imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
@@ -243,20 +243,20 @@ VkResult VBBCanvas::createDepthStencil(void) {
     VmaAllocationCreateInfo allocInfo = {};
     allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
     allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-    vmaCreateImage(m_vma, &imageInfo, &allocInfo, &depthStencilImage, &depthStencilAllocation, nullptr);
+    vmaCreateImage(m_vma, &imageInfo, &allocInfo, &m_depthStencilImage, &m_depthStencilAllocation, nullptr);
 
     VkImageViewCreateInfo viewInfo = {};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.image = depthStencilImage;
+    viewInfo.image = m_depthStencilImage;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    viewInfo.format = depthStencilFormat;
+    viewInfo.format = m_depthStencilFormat;
     viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    m_lastResult = vkCreateImageView(m_device, &viewInfo, nullptr, &depthStencilImageView);
+    m_lastResult = vkCreateImageView(m_device, &viewInfo, nullptr, &m_depthStencilImageView);
 
     return m_lastResult;
 }
@@ -276,8 +276,8 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     // We are probably closing the window and the windowing system is still calling this
     if (m_lastResult == VK_ERROR_SURFACE_LOST_KHR) return m_lastResult;
 
-    screenExtent2D.width = surfaceCapabilities.currentExtent.width;
-    screenExtent2D.height = surfaceCapabilities.currentExtent.height;
+    m_screenExtent2D.width = surfaceCapabilities.currentExtent.width;
+    m_screenExtent2D.height = surfaceCapabilities.currentExtent.height;
 
     if (m_wantDepthStencil) {
         m_lastResult = createDepthStencil();
@@ -285,19 +285,19 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     }
 
     // If the image views already exist, free them up along with render passes and framebuffers
-    if (swapchainImageViews.size() != 0) {
-        for (auto imageView : swapchainImageViews) vkDestroyImageView(m_device, imageView, nullptr);
+    if (m_swapchainImageViews.size() != 0) {
+        for (auto imageView : m_swapchainImageViews) vkDestroyImageView(m_device, imageView, nullptr);
 
         vkDestroySwapchainKHR(m_device, swapChain, nullptr);
     }
 
-    if (swapChainFramebuffers.size() != 0) {
-        for (auto framebuffer : swapChainFramebuffers) vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+    if (m_swapChainFramebuffers.size() != 0) {
+        for (auto framebuffer : m_swapChainFramebuffers) vkDestroyFramebuffer(m_device, framebuffer, nullptr);
     }
 
-    swapchainImageViews.resize(0);
+    m_swapchainImageViews.resize(0);
     swapchainImages.resize(0);
-    swapChainFramebuffers.resize(0);
+    m_swapChainFramebuffers.resize(0);
 
     VkSwapchainCreateInfoKHR swapChainInfo = {};
     swapChainInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -306,7 +306,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     swapChainInfo.minImageCount = m_framesInFlight;
     swapChainInfo.imageFormat = surfaceFormatToUse.format;
     swapChainInfo.imageColorSpace = surfaceFormatToUse.colorSpace;
-    swapChainInfo.imageExtent = screenExtent2D;
+    swapChainInfo.imageExtent = m_screenExtent2D;
     swapChainInfo.imageArrayLayers = 1;
     swapChainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     swapChainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -327,7 +327,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     swapchainImages.resize(swapChainImageCount);
     vkGetSwapchainImagesKHR(m_device, swapChain, &swapChainImageCount, swapchainImages.data());
 
-    swapchainImageViews.resize(swapChainImageCount);
+    m_swapchainImageViews.resize(swapChainImageCount);
     for (uint32_t i = 0; i < swapChainImageCount; i++) {
         VkImageViewCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -343,21 +343,21 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
         createInfo.subresourceRange.levelCount = 1;
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
-        m_lastResult = vkCreateImageView(m_device, &createInfo, nullptr, &swapchainImageViews[i]);
+        m_lastResult = vkCreateImageView(m_device, &createInfo, nullptr, &m_swapchainImageViews[i]);
         if (m_lastResult != VK_SUCCESS) return m_lastResult;
     }
 
     // Do we need an MSAA color image?
     if (m_msaaSamples != VK_SAMPLE_COUNT_1_BIT) {
-        if (msaaColorImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, msaaColorImageView, nullptr);
+        if (m_msaaColorImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_msaaColorImageView, nullptr);
 
-        if (msaaColorImage != VK_NULL_HANDLE) vmaDestroyImage(m_vma, msaaColorImage, m_msaaColorAllocation);
+        if (m_msaaColorImage != VK_NULL_HANDLE) vmaDestroyImage(m_vma, m_msaaColorImage, m_msaaColorAllocation);
 
         VkImageCreateInfo imageInfo{};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
-        imageInfo.extent.width = screenExtent2D.width;
-        imageInfo.extent.height = screenExtent2D.height;
+        imageInfo.extent.width = m_screenExtent2D.width;
+        imageInfo.extent.height = m_screenExtent2D.height;
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = 1;
         imageInfo.arrayLayers = 1;
@@ -372,11 +372,11 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
         VmaAllocationCreateInfo allocInfo = {};
         allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
         allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-        vmaCreateImage(m_vma, &imageInfo, &allocInfo, &msaaColorImage, &m_msaaColorAllocation, nullptr);
+        vmaCreateImage(m_vma, &imageInfo, &allocInfo, &m_msaaColorImage, &m_msaaColorAllocation, nullptr);
 
         VkImageViewCreateInfo viewInfo = {};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image = msaaColorImage;
+        viewInfo.image = m_msaaColorImage;
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         viewInfo.format = swapChainImageFormat;
         viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -385,7 +385,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        vkCreateImageView(m_device, &viewInfo, nullptr, &msaaColorImageView);
+        vkCreateImageView(m_device, &viewInfo, nullptr, &m_msaaColorImageView);
     }
 
     createFramebuffers();
@@ -424,7 +424,7 @@ VkResult VBBCanvas::createRenderPass(void) {
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = depthStencilFormat;
+    depthAttachment.format = m_depthStencilFormat;
     depthAttachment.samples = m_msaaSamples;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -490,21 +490,21 @@ VkResult VBBCanvas::createRenderPass(void) {
 
 // ******************************************************************88
 VkResult VBBCanvas::createFramebuffers(void) {
-    swapChainFramebuffers.resize(swapchainImageViews.size());
+    m_swapChainFramebuffers.resize(m_swapchainImageViews.size());
 
-    for (size_t i = 0; i < swapchainImageViews.size(); i++) {
+    for (size_t i = 0; i < m_swapchainImageViews.size(); i++) {
         std::vector<VkImageView> attachments;
 
         if (m_msaaSamples == VK_SAMPLE_COUNT_1_BIT) {
-            attachments.push_back(swapchainImageViews[i]);
+            attachments.push_back(m_swapchainImageViews[i]);
 
-            if (m_wantDepthStencil) attachments.push_back(depthStencilImageView);
+            if (m_wantDepthStencil) attachments.push_back(m_depthStencilImageView);
         } else {  // Different order
-            attachments.push_back(msaaColorImageView);
+            attachments.push_back(m_msaaColorImageView);
 
-            if (m_wantDepthStencil) attachments.push_back(depthStencilImageView);
+            if (m_wantDepthStencil) attachments.push_back(m_depthStencilImageView);
 
-            attachments.push_back(swapchainImageViews[i]);
+            attachments.push_back(m_swapchainImageViews[i]);
         }
 
         VkFramebufferCreateInfo framebufferInfo{};
@@ -513,11 +513,11 @@ VkResult VBBCanvas::createFramebuffers(void) {
 
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
-        framebufferInfo.width = screenExtent2D.width;
-        framebufferInfo.height = screenExtent2D.height;
+        framebufferInfo.width = m_screenExtent2D.width;
+        framebufferInfo.height = m_screenExtent2D.height;
         framebufferInfo.layers = 1;
 
-        m_lastResult = vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]);
+        m_lastResult = vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]);
         if (m_lastResult != VK_SUCCESS) return m_lastResult;
     }
 
@@ -525,8 +525,8 @@ VkResult VBBCanvas::createFramebuffers(void) {
 }
 
 VkCommandBuffer VBBCanvas::startRendering(void) {
-    inFlightFences[currentFrame].wait();   // Until any previous rendering is done
-    inFlightFences[currentFrame].reset();  // Clear it for the next use
+    m_inFlightFences[currentFrame].wait();   // Until any previous rendering is done
+    m_inFlightFences[currentFrame].reset();  // Clear it for the next use
 
     // TBD: Block at the beginniing. For GUI apps, this means the finish is asynchronous an other
     // messages in the message queue can be processed between paint calls.
@@ -536,9 +536,9 @@ VkCommandBuffer VBBCanvas::startRendering(void) {
     if (m_wantBlocking) vkQueueWaitIdle(pDevice->getQueue());
 
     m_lastResult =
-        vkAcquireNextImageKHR(m_device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+        vkAcquireNextImageKHR(m_device, swapChain, UINT64_MAX, m_imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
     if (m_lastResult == VK_ERROR_OUT_OF_DATE_KHR) {
-        resizeCanvas(screenExtent2D.width, screenExtent2D.height);
+        resizeCanvas(m_screenExtent2D.width, m_screenExtent2D.height);
         return VK_NULL_HANDLE;
     }
 
@@ -559,9 +559,9 @@ VkCommandBuffer VBBCanvas::startRendering(void) {
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = m_renderPass;
-    renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+    renderPassInfo.framebuffer = m_swapChainFramebuffers[imageIndex];
     renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = screenExtent2D;
+    renderPassInfo.renderArea.extent = m_screenExtent2D;
 
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0] = m_clearColorValue;
@@ -580,16 +580,16 @@ VkCommandBuffer VBBCanvas::startRendering(void) {
     // Z comes out of screen, Y goes up
     VkViewport viewport{};
     viewport.x = 0.0f;
-    viewport.y = (m_flipViewport) ? static_cast<float>(screenExtent2D.height) : 0;
-    viewport.width = static_cast<float>(screenExtent2D.width);
-    viewport.height = (m_flipViewport) ? -static_cast<float>(screenExtent2D.height) : static_cast<float>(screenExtent2D.height);
+    viewport.y = (m_flipViewport) ? static_cast<float>(m_screenExtent2D.height) : 0;
+    viewport.width = static_cast<float>(m_screenExtent2D.width);
+    viewport.height = (m_flipViewport) ? -static_cast<float>(m_screenExtent2D.height) : static_cast<float>(m_screenExtent2D.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = screenExtent2D;
+    scissor.extent = m_screenExtent2D;
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
     return commandBuffer;
@@ -608,7 +608,7 @@ VkResult VBBCanvas::doneRendering(void) {
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+    VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphores[currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -616,11 +616,11 @@ VkResult VBBCanvas::doneRendering(void) {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+    VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphores[currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    m_lastResult = vkQueueSubmit(pDevice->getQueue(), 1, &submitInfo, inFlightFences[currentFrame].getFence());
+    m_lastResult = vkQueueSubmit(pDevice->getQueue(), 1, &submitInfo, m_inFlightFences[currentFrame].getFence());
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -639,7 +639,7 @@ VkResult VBBCanvas::doneRendering(void) {
     currentFrame = (currentFrame + 1) % m_framesInFlight;
 
     if (m_lastResult == VK_ERROR_OUT_OF_DATE_KHR || m_lastResult == VK_SUBOPTIMAL_KHR)
-        resizeCanvas(screenExtent2D.width, screenExtent2D.height);
+        resizeCanvas(m_screenExtent2D.width, m_screenExtent2D.height);
 
     return VK_SUCCESS;
 }

@@ -16,7 +16,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Copyright © 2023 Richard S. Wright Jr. (richard@lunarg.com)
+ * Copyright © 2023-2024 Richard S. Wright Jr. (richard@lunarg.com)
  *
  * This software is part of the Vulkan Building Blocks
  */
@@ -103,10 +103,10 @@ VBBInstance::VBBInstance() {
 VBBInstance::~VBBInstance() {
     
     // Cleanup debugger?
-    if(debugMessenger != VK_NULL_HANDLE) {
+    if(m_debugMessenger != VK_NULL_HANDLE) {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_instanceHandle, "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr)
-            func(m_instanceHandle, debugMessenger, nullptr);
+            func(m_instanceHandle, m_debugMessenger, nullptr);
     }
 
     if (m_instanceHandle != VK_NULL_HANDLE) vkDestroyInstance(m_instanceHandle, nullptr);
@@ -198,7 +198,7 @@ VkResult VBBInstance::createInstance(VkBool32 wantPortability, VkApplicationInfo
     if(m_debuggerOn) {
         auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(m_instanceHandle, "vkCreateDebugUtilsMessengerEXT");
         if (func != nullptr)
-            func(m_instanceHandle, &debugCreateInfo, nullptr, &debugMessenger);
+            func(m_instanceHandle, &debugCreateInfo, nullptr, &m_debugMessenger);
     }
     
     // Once the instance is created, this little bit of memory is
