@@ -26,7 +26,7 @@
 
 // *****************************************************************************************************************
 // Constructor just stores data, does no real work that can fail
-VBBTexturStreaming::VBBTexturStreaming(VmaAllocator Allocator, VBBDevice& device) {
+VBBTextureStreaming::VBBTextureStreaming(VmaAllocator Allocator, VBBDevice& device) {
     m_VMA = Allocator;
     m_physicalDevice = device.getPhysicalDeviceHandle();
     m_device = device.getDevice();
@@ -36,7 +36,7 @@ VBBTexturStreaming::VBBTexturStreaming(VmaAllocator Allocator, VBBDevice& device
 
 // *****************************************************************************************************************
 // Cleanup any residual objects and memory
-VBBTexturStreaming::~VBBTexturStreaming() {
+VBBTextureStreaming::~VBBTextureStreaming() {
     if (m_textureSampler != VK_NULL_HANDLE) vkDestroySampler(m_device, m_textureSampler, nullptr);
 
     if (m_textureImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_textureImageView, nullptr);
@@ -47,7 +47,7 @@ VBBTexturStreaming::~VBBTexturStreaming() {
 // ************************************************************************************************************************
 // Initalize to maximum storage. Format is baked in.
 // TBD: bytesPerPixel can be derived from format... write a helper function somewhere to do this
-bool VBBTexturStreaming::createTexture(VBBBufferDynamic& textureData, uint32_t maxWidth, uint32_t maxHeight, uint32_t bytesPerPixel,
+bool VBBTextureStreaming::createTexture(VBBBufferDynamic& textureData, uint32_t maxWidth, uint32_t maxHeight, uint32_t bytesPerPixel,
                                        VkFormat format) {
     maxImageSize = maxWidth * maxHeight * bytesPerPixel;
     currImageSize = maxImageSize;
@@ -94,7 +94,7 @@ bool VBBTexturStreaming::createTexture(VBBBufferDynamic& textureData, uint32_t m
 
 // *************************************************************************************************************************************
 // Update a texture.
-bool VBBTexturStreaming::updateTexture(VBBBufferDynamic& textureData) {
+bool VBBTextureStreaming::updateTexture(VBBBufferDynamic& textureData) {
     // Okay, easy, just replace the texture bits...
     transitionImageLayout(m_textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
@@ -106,7 +106,7 @@ bool VBBTexturStreaming::updateTexture(VBBBufferDynamic& textureData) {
     return true;
 }
 
-void VBBTexturStreaming::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkDeviceSize offset,
+void VBBTextureStreaming::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkDeviceSize offset,
                                            int nMipLevel) {
     VBBSingleShotCommand singleShot(m_device, m_commandPool, m_graphicsQueue);
     singleShot.start();
@@ -131,7 +131,7 @@ void VBBTexturStreaming::copyBufferToImage(VkBuffer buffer, VkImage image, uint3
 
 // ******************************************************************************************************************
 // Sets up for the transitiion operatioin
-void VBBTexturStreaming::transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout) {
+void VBBTextureStreaming::transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout) {
     VBBSingleShotCommand singleShot(m_device, m_commandPool, m_graphicsQueue);
 
     VkImageMemoryBarrier barrier = {};
@@ -178,7 +178,7 @@ void VBBTexturStreaming::transitionImageLayout(VkImage image, VkImageLayout oldL
     singleShot.end();
 }
 
-void VBBTexturStreaming::createImageView(void) {
+void VBBTextureStreaming::createImageView(void) {
     // If already set, just return
     if (m_textureImageView != VK_NULL_HANDLE) return;
 
@@ -196,7 +196,7 @@ void VBBTexturStreaming::createImageView(void) {
     vkCreateImageView(m_device, &viewInfo, nullptr, &m_textureImageView);
 }
 
-void VBBTexturStreaming::createSampler() {
+void VBBTextureStreaming::createSampler() {
     // If already setup, just return
     if (m_textureSampler != VK_NULL_HANDLE) return;
 

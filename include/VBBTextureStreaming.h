@@ -46,10 +46,10 @@
 #include "VBBBufferDynamic.h"
 #include "VBBDevice.h"
 
-class VBBTexturStreaming {
+class VBBTextureStreaming {
   public:
-    VBBTexturStreaming(VmaAllocator allocator, VBBDevice& device);
-    ~VBBTexturStreaming();
+    VBBTextureStreaming(VmaAllocator allocator, VBBDevice& device);
+    ~VBBTextureStreaming();
 
     // Initalize to maximum storage. Format is baked in.
     bool createTexture(VBBBufferDynamic& textureData, uint32_t maxWidth, uint32_t maxHeight, uint32_t bytesPerPixel,

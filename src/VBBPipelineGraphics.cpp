@@ -34,7 +34,7 @@ VBBPipelineGraphics::~VBBPipelineGraphics() {
 // Call this for each vertex input buffer
 void VBBPipelineGraphics::addVertexAttributeBinding(uint32_t stride, VkVertexInputRate inputRate, uint32_t location,
                                                     VkFormat format) {
-    uint32_t binding = static_cast<uint32_t>(bindingDescriptions.size());
+    uint32_t binding =  static_cast<uint32_t>(bindingDescriptions.size());
 
     VkVertexInputBindingDescription bindingDescription{};
     bindingDescription.binding = binding;
