@@ -49,7 +49,7 @@ QtVulkanWindow::QtVulkanWindow(VkInstance vulkanInstance, VmaAllocator allocator
     this->vulkanInstance = vulkanInstance;
 
 #ifdef __APPLE__
-    setSurfaceType(QSurface::VulkanSurface);
+    setSurfaceType(QSurface::MetalSurface);
 #endif
 
 }
