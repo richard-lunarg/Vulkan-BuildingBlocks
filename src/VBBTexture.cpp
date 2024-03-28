@@ -22,6 +22,7 @@
  */
 
 #include <memory.h>
+#include <assert.h>
 
 #include "VBBTexture.h"
 #include "VBBSingleShotCommand.h"
@@ -103,6 +104,7 @@ void VBBTexture::transitionImageLayout(VkImage image, VkImageLayout oldLayout, V
     } else {
         sourceStage = 0;
         destinationStage = 0;
+        assert(1);
         // FAILED REALLY
     }
 
@@ -138,8 +140,8 @@ void VBBTexture::createSampler() {
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    samplerInfo.anisotropyEnable = VK_FALSE;                     // TBD, this should be a parameter or setting
-    samplerInfo.maxAnisotropy = 1.0f;
+    samplerInfo.anisotropyEnable = m_useAnistotropy;
+    samplerInfo.maxAnisotropy = m_maxAnisotropy;
     samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
     samplerInfo.compareEnable = VK_FALSE;
@@ -193,15 +195,15 @@ bool VBBTexture::loadRawTexture(VBBBufferDynamic &imageBuffer, VkFormat format, 
     imageInfo.format = imageFormat;
     imageInfo.tiling = imageTiling;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+    imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.flags = 0;
     imageInfo.queueFamilyIndexCount = 0;
 
     VmaAllocationCreateInfo texAllocInfo = {};
-    texAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-    texAllocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    texAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    texAllocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;//VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     vmaCreateImage(m_VMA, &imageInfo, &texAllocInfo, &textureImage, &m_allocation, nullptr);
 
     // Wait... wait... Look down below

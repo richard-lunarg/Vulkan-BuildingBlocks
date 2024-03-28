@@ -241,8 +241,8 @@ VkResult VBBCanvas::createDepthStencil(void) {
     imageInfo.flags = 0;
 
     VmaAllocationCreateInfo allocInfo = {};
-    allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-    allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;//VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     vmaCreateImage(m_vma, &imageInfo, &allocInfo, &m_depthStencilImage, &m_depthStencilAllocation, nullptr);
 
     VkImageViewCreateInfo viewInfo = {};
@@ -370,8 +370,8 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
         imageInfo.flags = 0;
 
         VmaAllocationCreateInfo allocInfo = {};
-        allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-        allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+        allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+        allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;//VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
         vmaCreateImage(m_vma, &imageInfo, &allocInfo, &m_msaaColorImage, &m_msaaColorAllocation, nullptr);
 
         VkImageViewCreateInfo viewInfo = {};

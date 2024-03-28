@@ -66,6 +66,8 @@ class VBBTexture {
     VkFilter minFilter = VK_FILTER_LINEAR;
     VkFilter magFilter = VK_FILTER_LINEAR;
     VkImageTiling imageTiling = VK_IMAGE_TILING_OPTIMAL;
+    VkBool32        m_useAnistotropy = VK_FALSE;
+    float           m_maxAnisotropy = 1.0;
 
   protected:
     void createTextureImageView(void);
