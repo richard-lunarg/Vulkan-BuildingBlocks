@@ -61,6 +61,7 @@ class VBBTextureStreaming {
     VkSampler getSampler(void) { return m_textureSampler; }
     VkImageView getImageView(void) { return m_textureImageView; }
     VkFormat getFormat(void) { return currImageFormat; }
+    VkImageLayout getLayout(void) { return imageLayout; }
     uint32_t getWidth() { return currTextureWidth; }
     uint32_t getHeight() { return currTextureHeight; }
 
@@ -93,6 +94,9 @@ class VBBTextureStreaming {
     VkImageView m_textureImageView = VK_NULL_HANDLE;
 
     VkSampler m_textureSampler = VK_NULL_HANDLE;
+
+    VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
 
     // Passed in at creation time
     VkPhysicalDevice m_physicalDevice;

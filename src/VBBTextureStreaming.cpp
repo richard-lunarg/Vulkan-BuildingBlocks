@@ -84,7 +84,7 @@ bool VBBTextureStreaming::createTexture(VBBBufferDynamic& textureData, uint32_t 
     copyBufferToImage(textureData.getBuffer(), m_textureImage, currTextureWidth, currTextureHeight);
 
     // Do the transfer along with any layout changes
-    transitionImageLayout(m_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    transitionImageLayout(m_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageLayout);
 
     createImageView();
     createSampler();
@@ -101,7 +101,7 @@ bool VBBTextureStreaming::updateTexture(VBBBufferDynamic& textureData) {
     // Update it for reals
     copyBufferToImage(textureData.getBuffer(), m_textureImage, currTextureWidth, currTextureHeight);
 
-    transitionImageLayout(m_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    transitionImageLayout(m_textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageLayout);
 
     return true;
 }
@@ -161,7 +161,7 @@ void VBBTextureStreaming::transitionImageLayout(VkImage image, VkImageLayout old
 
         sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-    } else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+    } else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == imageLayout) {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 

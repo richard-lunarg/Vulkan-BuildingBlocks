@@ -221,7 +221,6 @@ VkResult VBBCanvas::createCanvas(VkSurfaceKHR surface, uint32_t initialWidth, ui
 // Create image and view for the depth/stencil buffer
 VkResult VBBCanvas::createDepthStencil(void) {
     if (m_depthStencilImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_depthStencilImageView, nullptr);
-
     if (m_depthStencilImage != VK_NULL_HANDLE) vmaDestroyImage(m_vma, m_depthStencilImage, m_depthStencilAllocation);
 
     VkImageCreateInfo imageInfo{};
@@ -255,7 +254,6 @@ VkResult VBBCanvas::createDepthStencil(void) {
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
-
     m_lastResult = vkCreateImageView(m_device, &viewInfo, nullptr, &m_depthStencilImageView);
 
     return m_lastResult;
@@ -266,9 +264,6 @@ VkResult VBBCanvas::createDepthStencil(void) {
 VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     (void)width;
     (void)height;
-
-    // We need to wait for the queue to be idle before we can do this stuff
-    if (pDevice) vkQueueWaitIdle(pDevice->getQueue());
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     m_lastResult = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevice, m_surfaceHandle, &surfaceCapabilities);
@@ -389,6 +384,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     }
 
     createFramebuffers();
+
     return m_lastResult;
 }
 
@@ -479,11 +475,8 @@ VkResult VBBCanvas::createRenderPass(void) {
     renderPassInfo.pAttachments = attachments.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
-
-    if (m_wantDepthStencil) {
-        renderPassInfo.dependencyCount = 1;
-        renderPassInfo.pDependencies = &dependency;
-    }
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
 
     return vkCreateRenderPass(m_device, &renderPassInfo, nullptr, &m_renderPass);
 }
