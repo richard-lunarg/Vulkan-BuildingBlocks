@@ -36,7 +36,8 @@ void *makeViewMetalCompatible(void* handle);
 #endif
 
 #ifdef linux
-#include </home/parallels/Dev/Qt6.5.3/qtbase/include/QtGui/6.5.3/QtGui/qpa/qplatformnativeinterface.h>
+//#include </home/parallels/Dev/Qt6.5.3/qtbase/include/QtGui/6.5.3/QtGui/qpa/qplatformnativeinterface.h>
+#include </home/rwright/Dev/Qt6.5.3/qtbase/include/QtGui/6.5.3/QtGui/qpa/qplatformnativeinterface.h>
 //#include </home/rwright/Dev/Qt6.3.1/include/QtGui/6.3.1/QtGui/qpa/qplatformnativeinterface.h>
 //#include <QtGui/qpa/qplatformnativeinterface.h>
 //using namespace QNativeInterface;
