@@ -631,8 +631,10 @@ VkResult VBBCanvas::doneRendering(void) {
 
     currentFrame = (currentFrame + 1) % m_framesInFlight;
 
-    if (m_lastResult == VK_ERROR_OUT_OF_DATE_KHR || m_lastResult == VK_SUBOPTIMAL_KHR)
+    if (m_lastResult == VK_ERROR_OUT_OF_DATE_KHR || m_lastResult == VK_SUBOPTIMAL_KHR) {
+        vkQueueWaitIdle(pDevice->getQueue());
         resizeCanvas(m_screenExtent2D.width, m_screenExtent2D.height);
+    }
 
     return VK_SUCCESS;
 }
