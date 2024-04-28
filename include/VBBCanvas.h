@@ -47,8 +47,8 @@ class VBBCanvas {
     // These functions set the parameters of the swapchain and framebuffer's desired
     // The defaults are also already set, so if the defaults are okay, none of these
     // actually needs to be called.
-    void setColorFormat(VkFormat format = VK_FORMAT_B8G8R8A8_UNORM) { colorFormat = format; }
-    void setColorSpace(VkColorSpaceKHR cspace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) { colorSpace = cspace; }
+    void setColorFormat(VkFormat format = VK_FORMAT_B8G8R8A8_UNORM) { m_colorFormat = format; }
+    void setColorSpace(VkColorSpaceKHR cspace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) { m_colorSpace = cspace; }
 
     //  In case this is called after the msaa is set, make sure and reset if the depth/stencil cannot accomodate the desired value
     //  And yes, if you are going to do depth, you might as well have stencil too. That's a design choice... may or may not hold up
@@ -78,14 +78,14 @@ class VBBCanvas {
     VkResult doneRendering(void);
 
     VmaAllocator getAllocator(void) { return m_vma; }
-    VBBDevice* getVBBDevice(void) { return pDevice; }
+    VBBDevice* getVBBDevice(void) { return m_pDevice; }
     VkRenderPass getRenderPass(void) { return m_renderPass; }
     VkDevice getLogicalDevice(void) { return m_device; }
-    VBBDevice* getDevice(void) { return pDevice; }
+    VBBDevice* getDevice(void) { return m_pDevice; }
     VkSampleCountFlagBits getMSAA(void) { return m_msaaSamples; }
     VkBool32 getDepthStencil(void) { return m_wantDepthStencil; }
     VmaAllocator getVMA(void) { return m_vma; }
-    VkQueue getQueue(void) { return pDevice->getQueue(); }
+    VkQueue getQueue(void) { return m_pDevice->getQueue(); }
 
   protected:
     VkResult createDepthStencil(void);
@@ -93,7 +93,7 @@ class VBBCanvas {
     VkResult createFramebuffers(void);
 
     VmaAllocator m_vma = nullptr;
-    VBBDevice* pDevice = nullptr;
+    VBBDevice* m_pDevice = nullptr;
     VkDevice m_device = VK_NULL_HANDLE;
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 
@@ -101,16 +101,16 @@ class VBBCanvas {
 
     VkExtent2D m_screenExtent2D;
 
-    VkFormat colorFormat = VK_FORMAT_B8G8R8A8_UNORM;                 // Widely available, almost deFacto
-    VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;  // Widely available, almost deFacto
-    VkFormat swapChainImageFormat = VK_FORMAT_UNDEFINED;
-    VkSwapchainKHR swapChain = nullptr;
+    VkFormat m_colorFormat = VK_FORMAT_B8G8R8A8_UNORM;                   // Widely available, almost deFacto
+    VkColorSpaceKHR m_colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;  // Widely available, almost deFacto
+    VkFormat m_swapChainImageFormat = VK_FORMAT_UNDEFINED;
+    VkSwapchainKHR m_swapChain = nullptr;
     VkRenderPass m_renderPass = VK_NULL_HANDLE;
-    VkSurfaceFormatKHR surfaceFormatToUse = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
+    VkSurfaceFormatKHR m_surfaceFormatToUse = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
 
-    uint32_t imageIndex = 0;
-    uint32_t currentFrame = 0;
-    std::vector<VkImage> swapchainImages;
+    uint32_t m_imageIndex = 0;
+    uint32_t m_currentFrame = 0;
+    std::vector<VkImage> m_swapchainImages;
     std::vector<VkImageView> m_swapchainImageViews;
     std::vector<VkFramebuffer> m_swapChainFramebuffers;
 

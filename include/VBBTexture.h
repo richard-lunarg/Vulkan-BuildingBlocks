@@ -58,6 +58,8 @@ class VBBTexture {
     // Create a texture from raw data
     bool loadRawTexture(const void* pImageData, VkFormat format, uint32_t channels, uint32_t width, uint32_t height, uint32_t totalBytes,
                         int mipLevels = 1);
+
+    // Create a texture from an existing buffer
     bool loadRawTexture(VBBBufferDynamic& imageBuffer, VkFormat format, uint32_t channels, uint32_t width, uint32_t height,
                         uint32_t totalBytes, int mipLevels = 1);
 

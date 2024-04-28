@@ -149,9 +149,12 @@ class VBBSimpleIndexedMesh {
 
     float m_epsilon = 0.0000001;
 
+    // Comparing floats is messy, use this instead of "==" and allow "close enough" to be equivalent
     inline bool closeEnough(float first, float second) { return (fabs(first - second) < m_epsilon) ? true : false; }
 };
 
+// ******************************
+// Some pre-built objects
 void VBBMakeTorus(VBBSimpleIndexedMesh& torusBatch, float majorRadius, float minorRadius, uint16_t numMajor, uint16_t numMinor);
 void VBBMakeSphere(VBBSimpleIndexedMesh& sphereBatch, double radius, uint32_t iSlices, uint32_t iStacks);
 void VBBMakeCylinder(VBBSimpleIndexedMesh& cylinderBatch, float baseRadius, float topRadius, float fLength, uint32_t numSlices,

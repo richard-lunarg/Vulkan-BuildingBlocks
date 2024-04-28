@@ -24,22 +24,22 @@
 #include "VBBCanvas.h"
 
 VBBCanvas::VBBCanvas(VBBDevice* pVulkanDevice, VmaAllocator allocator) : m_vma(allocator) {
-    pDevice = pVulkanDevice;
+    m_pDevice = pVulkanDevice;
     m_device = pVulkanDevice->getDevice();
     m_physicalDevice = pVulkanDevice->getPhysicalDeviceHandle();
 }
 
 VBBCanvas::~VBBCanvas(void) {
     // We need to wait for the queue to be idle before we can do this stuff
-    if (pDevice) vkQueueWaitIdle(pDevice->getQueue());
+    if (m_pDevice) vkQueueWaitIdle(m_pDevice->getQueue());
 
-    if (m_commandBuffers.size() != 0 && pDevice != nullptr)
-        pDevice->releaseCommandBuffers(m_commandBuffers.data(), static_cast<uint32_t>(m_commandBuffers.size()));
+    if (m_commandBuffers.size() != 0 && m_pDevice != nullptr)
+        m_pDevice->releaseCommandBuffers(m_commandBuffers.data(), static_cast<uint32_t>(m_commandBuffers.size()));
 
     if (m_swapchainImageViews.size() != 0) {
         for (auto imageView : m_swapchainImageViews) vkDestroyImageView(m_device, imageView, nullptr);
 
-        vkDestroySwapchainKHR(m_device, swapChain, nullptr);
+        vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
     }
 
     if (m_swapChainFramebuffers.size() != 0) {
@@ -155,14 +155,14 @@ VkResult VBBCanvas::createCanvas(VkSurfaceKHR surface, uint32_t initialWidth, ui
     // but the developer could alwasy query ahead of time to pick a different one based on what is supported.
     // We are really just making sure the selected formats are in the list
     for (uint32_t i = 0; i < formatCount; i++) {
-        if (surfaceFormats[i].format == colorFormat && surfaceFormats[i].colorSpace == colorSpace) {
-            surfaceFormatToUse = surfaceFormats[i];
-            swapChainImageFormat = surfaceFormats[i].format;
+        if (surfaceFormats[i].format == m_colorFormat && surfaceFormats[i].colorSpace == m_colorSpace) {
+            m_surfaceFormatToUse = surfaceFormats[i];
+            m_swapChainImageFormat = surfaceFormats[i].format;
             break;
         }
     }
 
-    if (swapChainImageFormat == VK_FORMAT_UNDEFINED)  // Thanks for trying, please play again
+    if (m_swapChainImageFormat == VK_FORMAT_UNDEFINED)  // Thanks for trying, please play again
         return VK_ERROR_FORMAT_NOT_SUPPORTED;
 
     // Presentation modes
@@ -209,7 +209,7 @@ VkResult VBBCanvas::createCanvas(VkSurfaceKHR surface, uint32_t initialWidth, ui
 
     // Get a command buffer
     m_commandBuffers.resize(m_framesInFlight);
-    m_lastResult = pDevice->allocateCommandBuffers(m_commandBuffers.data(), m_framesInFlight);
+    m_lastResult = m_pDevice->allocateCommandBuffers(m_commandBuffers.data(), m_framesInFlight);
     if (m_lastResult != VK_SUCCESS) return m_lastResult;
 
     createRenderPass();
@@ -283,7 +283,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     if (m_swapchainImageViews.size() != 0) {
         for (auto imageView : m_swapchainImageViews) vkDestroyImageView(m_device, imageView, nullptr);
 
-        vkDestroySwapchainKHR(m_device, swapChain, nullptr);
+        vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
     }
 
     if (m_swapChainFramebuffers.size() != 0) {
@@ -291,7 +291,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     }
 
     m_swapchainImageViews.resize(0);
-    swapchainImages.resize(0);
+    m_swapchainImages.resize(0);
     m_swapChainFramebuffers.resize(0);
 
     VkSwapchainCreateInfoKHR swapChainInfo = {};
@@ -299,8 +299,8 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     swapChainInfo.pNext = nullptr;
     swapChainInfo.surface = m_surfaceHandle;
     swapChainInfo.minImageCount = m_framesInFlight;
-    swapChainInfo.imageFormat = surfaceFormatToUse.format;
-    swapChainInfo.imageColorSpace = surfaceFormatToUse.colorSpace;
+    swapChainInfo.imageFormat = m_surfaceFormatToUse.format;
+    swapChainInfo.imageColorSpace = m_surfaceFormatToUse.colorSpace;
     swapChainInfo.imageExtent = m_screenExtent2D;
     swapChainInfo.imageArrayLayers = 1;
     swapChainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -313,22 +313,22 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     swapChainInfo.clipped = VK_TRUE;
     swapChainInfo.oldSwapchain = nullptr;  // I believe this is a bug in MoltenVK, I should be able to put the old swapchain here.
 
-    m_lastResult = vkCreateSwapchainKHR(m_device, &swapChainInfo, nullptr, &swapChain);
+    m_lastResult = vkCreateSwapchainKHR(m_device, &swapChainInfo, nullptr, &m_swapChain);
     if (m_lastResult != VK_SUCCESS) return m_lastResult;
 
     uint32_t swapChainImageCount = 0;
-    m_lastResult = vkGetSwapchainImagesKHR(m_device, swapChain, &swapChainImageCount, nullptr);
+    m_lastResult = vkGetSwapchainImagesKHR(m_device, m_swapChain, &swapChainImageCount, nullptr);
     m_framesInFlight = swapChainImageCount;  // Seems the sanest approach in case they are different
-    swapchainImages.resize(swapChainImageCount);
-    vkGetSwapchainImagesKHR(m_device, swapChain, &swapChainImageCount, swapchainImages.data());
+    m_swapchainImages.resize(swapChainImageCount);
+    vkGetSwapchainImagesKHR(m_device, m_swapChain, &swapChainImageCount, m_swapchainImages.data());
 
     m_swapchainImageViews.resize(swapChainImageCount);
     for (uint32_t i = 0; i < swapChainImageCount; i++) {
         VkImageViewCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = swapchainImages[i];
+        createInfo.image = m_swapchainImages[i];
         createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        createInfo.format = swapChainImageFormat;
+        createInfo.format = m_swapChainImageFormat;
         createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
         createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
         createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -356,7 +356,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
         imageInfo.extent.depth = 1;
         imageInfo.mipLevels = 1;
         imageInfo.arrayLayers = 1;
-        imageInfo.format = swapChainImageFormat;
+        imageInfo.format = m_swapChainImageFormat;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -373,7 +373,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewInfo.image = m_msaaColorImage;
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format = swapChainImageFormat;
+        viewInfo.format = m_swapChainImageFormat;
         viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         viewInfo.subresourceRange.baseMipLevel = 0;
         viewInfo.subresourceRange.levelCount = 1;
@@ -405,7 +405,7 @@ VkResult VBBCanvas::createRenderPass(void) {
     }
 
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = swapChainImageFormat;
+    colorAttachment.format = m_swapChainImageFormat;
     colorAttachment.samples = m_msaaSamples;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -434,7 +434,7 @@ VkResult VBBCanvas::createRenderPass(void) {
     depthStencilAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription colorAttachmentResolve{};
-    colorAttachmentResolve.format = swapChainImageFormat;
+    colorAttachmentResolve.format = m_swapChainImageFormat;
     colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;  // Yes, this has to be one
     colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -518,25 +518,25 @@ VkResult VBBCanvas::createFramebuffers(void) {
 }
 
 VkCommandBuffer VBBCanvas::startRendering(void) {
-    m_inFlightFences[currentFrame].wait();   // Until any previous rendering is done
-    m_inFlightFences[currentFrame].reset();  // Clear it for the next use
+    m_inFlightFences[m_currentFrame].wait();   // Until any previous rendering is done
+    m_inFlightFences[m_currentFrame].reset();  // Clear it for the next use
 
     // TBD: Block at the beginniing. For GUI apps, this means the finish is asynchronous an other
     // messages in the message queue can be processed between paint calls.
     // The pure move along, is causing problems with my descriptor sets. I'm trying to update one
     // while it's already being used by the previous command buffer. So do we need arrays of
     // descriptor sets? Or the indexed descriptor set extension...
-    if (m_wantBlocking) vkQueueWaitIdle(pDevice->getQueue());
+    if (m_wantBlocking) vkQueueWaitIdle(m_pDevice->getQueue());
 
     m_lastResult =
-        vkAcquireNextImageKHR(m_device, swapChain, UINT64_MAX, m_imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+        vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &m_imageIndex);
     if (m_lastResult == VK_ERROR_OUT_OF_DATE_KHR) {
         resizeCanvas(m_screenExtent2D.width, m_screenExtent2D.height);
         return VK_NULL_HANDLE;
     }
 
     // ************************************************************************
-    VkCommandBuffer commandBuffer = m_commandBuffers[currentFrame];
+    VkCommandBuffer commandBuffer = m_commandBuffers[m_currentFrame];
     vkResetCommandBuffer(commandBuffer, 0);
 
     // ************************************************************************
@@ -552,7 +552,7 @@ VkCommandBuffer VBBCanvas::startRendering(void) {
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = m_renderPass;
-    renderPassInfo.framebuffer = m_swapChainFramebuffers[imageIndex];
+    renderPassInfo.framebuffer = m_swapChainFramebuffers[m_imageIndex];
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = m_screenExtent2D;
 
@@ -592,7 +592,7 @@ VkCommandBuffer VBBCanvas::startRendering(void) {
 // DONE drawing, wrap up the command buffer, wait for the queue to complete, and
 // present the results.
 VkResult VBBCanvas::doneRendering(void) {
-    VkCommandBuffer commandBuffer = m_commandBuffers[currentFrame];
+    VkCommandBuffer commandBuffer = m_commandBuffers[m_currentFrame];
     vkCmdEndRenderPass(commandBuffer);
 
     m_lastResult = vkEndCommandBuffer(commandBuffer);
@@ -601,7 +601,7 @@ VkResult VBBCanvas::doneRendering(void) {
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphores[currentFrame]};
+    VkSemaphore waitSemaphores[] = {m_imageAvailableSemaphores[m_currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -609,27 +609,27 @@ VkResult VBBCanvas::doneRendering(void) {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphores[currentFrame]};
+    VkSemaphore signalSemaphores[] = {m_renderFinishedSemaphores[m_currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    m_lastResult = vkQueueSubmit(pDevice->getQueue(), 1, &submitInfo, m_inFlightFences[currentFrame].getFence());
+    m_lastResult = vkQueueSubmit(m_pDevice->getQueue(), 1, &submitInfo, m_inFlightFences[m_currentFrame].getFence());
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    VkSwapchainKHR swapChains[] = {swapChain};
+    VkSwapchainKHR swapChains[] = {m_swapChain};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pImageIndices = &m_imageIndex;
     presentInfo.pResults = nullptr;
 
     // Note, this is actually asynchronous...
-    m_lastResult = vkQueuePresentKHR(pDevice->getQueue(), &presentInfo);
+    m_lastResult = vkQueuePresentKHR(m_pDevice->getQueue(), &presentInfo);
 
-    currentFrame = (currentFrame + 1) % m_framesInFlight;
+    m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 
     if (m_lastResult == VK_ERROR_OUT_OF_DATE_KHR || m_lastResult == VK_SUBOPTIMAL_KHR) {
         vkQueueWaitIdle(pDevice->getQueue());
