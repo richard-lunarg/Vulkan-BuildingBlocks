@@ -169,7 +169,8 @@ bool VBBTexture::loadRawTexture(const void *pImageData, VkFormat format, uint32_
     memcpy(pData, pImageData, imageSize);
     tempBuffer.unmapMemory();
 
-    return loadRawTexture(tempBuffer, format, channels, width, height, totalBytes, mipLevels);
+    bool ret = loadRawTexture(tempBuffer, format, channels, width, height, totalBytes, mipLevels);
+    return ret;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

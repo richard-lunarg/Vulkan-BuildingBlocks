@@ -75,7 +75,7 @@ VkResult VBBDescriptors::init(VkDevice device, uint32_t framesInFlight, uint32_t
     std::vector<VkDescriptorPoolSize> poolSizes;
     for (uint32_t i = 0; i < descriptorCount; i++) {
         // Make a struct for this one
-        VkDescriptorPoolSize poolSize;
+        VkDescriptorPoolSize poolSize = {};
         poolSize.type = m_layoutBindings[i].descriptorType;
         poolSize.descriptorCount = 1;
 
