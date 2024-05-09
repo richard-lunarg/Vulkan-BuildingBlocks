@@ -42,6 +42,8 @@ VBBDescriptors::~VBBDescriptors(void) {
 //binding number
 // VK_SHADER_STAGE_COMPUTE_BIT
 //Rinse, Repeat...
+// Don't call this more than once... I should really add some checks here for that
+// It also doesn't really support arrays.
 VkResult VBBDescriptors::init(VkDevice device, uint32_t framesInFlight, uint32_t descriptorCount, ...) {
     m_device = device;
     va_list argList;
@@ -74,6 +76,7 @@ VkResult VBBDescriptors::init(VkDevice device, uint32_t framesInFlight, uint32_t
     // descriptors we need from above
     std::vector<VkDescriptorPoolSize> poolSizes;
     for (uint32_t i = 0; i < descriptorCount; i++) {
+
         // Make a struct for this one
         VkDescriptorPoolSize poolSize = {};
         poolSize.type = m_layoutBindings[i].descriptorType;
@@ -111,8 +114,8 @@ VkResult VBBDescriptors::init(VkDevice device, uint32_t framesInFlight, uint32_t
     VkDescriptorSetAllocateInfo dsAllocInfo = {};
     dsAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;  // using the pool we just set
     dsAllocInfo.pNext = nullptr;
-    dsAllocInfo.descriptorPool = m_descriptorPool;  // only 1 descriptor
-    dsAllocInfo.descriptorSetCount = 1;             // FOR FRAMES IN FLIGHTt
+    dsAllocInfo.descriptorPool = m_descriptorPool;
+    dsAllocInfo.descriptorSetCount = 1;
     dsAllocInfo.pSetLayouts = &m_descriptorSetLayout;
 
     m_lastResult = vkAllocateDescriptorSets(device, &dsAllocInfo, &m_descriptorSet);

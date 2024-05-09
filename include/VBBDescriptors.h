@@ -19,7 +19,12 @@
  * Copyright © 2023 Richard S. Wright Jr. (richard@lunarg.com)
  *
  * This software is part of the Vulkan Building Blocks
- */
+
+    The idea here is to just have one class that manages descriptors... non-attribute data passed to a shader.
+    You create this and pass it the list of descriptors.
+    It creates a descriptor pool from which descriptors can be allocated
+
+*/
 
 // TBD: Future idea... can we just parse a shader and build from that?
 #pragma once
