@@ -51,10 +51,11 @@ VkResult VBBDescriptors::init(VkDevice device, uint32_t framesInFlight, uint32_t
 
     for (uint32_t i = 0; i < descriptorCount; i++) {
         VkDescriptorSetLayoutBinding binding = {};
-        binding.descriptorType = va_arg(argList, VkDescriptorType);
+        // On Linux ARM64, I have to use int, or I get a crash on va_arg calls
+        binding.descriptorType = (VkDescriptorType)va_arg(argList, int);// VkDescriptorType);
         binding.binding = va_arg(argList, uint32_t);
         binding.descriptorCount = 1;
-        binding.stageFlags = va_arg(argList, VkShaderStageFlagBits);
+        binding.stageFlags = (VkShaderStageFlagBits)va_arg(argList, int);
         binding.pImmutableSamplers = nullptr;
         m_layoutBindings.push_back(binding);
     }

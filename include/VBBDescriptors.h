@@ -42,7 +42,6 @@ class VBBDescriptors {
   public:
     VBBDescriptors(void);
     virtual ~VBBDescriptors(void);
-
     VkResult init(VkDevice device, uint32_t framesInFlight, uint32_t descriptorCount, ...);
 
     VkResult getLastResult(void) { return m_lastResult; }
