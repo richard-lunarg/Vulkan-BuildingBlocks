@@ -1,11 +1,11 @@
 /*
  * Many system level features have to use Objective C Apple speciic functions. This
  * file contains a set of C callable functions that are implemented in Objective C.
- *
- *
- *  Richard S. Wright Jr.
- *  richard@lunarg.com
- *
+
+    Copyright 2022, Starstone Software Systems, Inc.
+    All Rights Reserved
+    Richard S. Wright Jr.
+    rwright@starstonesoftware.com
  */
 
 #include "AppleTools.h"
