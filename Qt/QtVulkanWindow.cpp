@@ -36,11 +36,7 @@ void *makeViewMetalCompatible(void* handle);
 #endif
 
 #ifdef linux
-//#include </home/parallels/Dev/Qt6.5.3/qtbase/include/QtGui/6.5.3/QtGui/qpa/qplatformnativeinterface.h>
-#include </home/rwright/Dev/Qt6.5.3/qtbase/include/QtGui/6.5.3/QtGui/qpa/qplatformnativeinterface.h>
-//#include </home/rwright/Dev/Qt6.3.1/include/QtGui/6.3.1/QtGui/qpa/qplatformnativeinterface.h>
-//#include <QtGui/qpa/qplatformnativeinterface.h>
-//using namespace QNativeInterface;
+#include <QtGui/qpa/qplatformnativeinterface.h>
 #endif
 
 QtVulkanWindow::QtVulkanWindow(VkInstance vulkanInstance, VmaAllocator allocator, QWindow *parent)
@@ -118,7 +114,7 @@ VkResult QtVulkanWindow::createCanvas(VBBDevice* pLogicalDevice)
     createInfoXCB.window = (xcb_window_t)this->winId();
 
     VkResult err = vkCreateXcbSurfaceKHR(vulkanInstance, &createInfoXCB, NULL, &vulkanSurface);
-    printf("Surface return is %d\n", err);
+    //printf("Surface return is %d\n", err);
 
 #endif
 
