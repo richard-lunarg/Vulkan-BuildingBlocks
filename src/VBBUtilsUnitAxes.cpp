@@ -437,8 +437,8 @@ VkResult VBBUtilsUnitAxes::createAxes(VBBCanvas* pCanvas)
     pIndexBufferDisk = new VBBBufferStatic(m_pCanvas->getVMA());
     lastResult = pIndexBufferDisk->createBuffer(disk.getIndexPointer(), sizeof(uint32_t)*indexCountDisk, m_pCanvas->getDevice());
 
-            // ***************************************************************
-            // Cone
+    // ***************************************************************
+    // Cone
     indexCountCone = cone.getIndexCount();
     attribCountCone = cone.getAttributeCount();
 
@@ -545,18 +545,18 @@ VkResult VBBUtilsUnitAxes::renderAxes(glm::mat4& modelView, glm::mat4& proj, VkC
     glm::mat4 mvp = proj * rootModelView;
     packagePushConstants(pc, modelView, mvp);
 
-            // White sphere
+    // White sphere
     pc.packMatrix[12] = 1.0f;
     pc.packMatrix[13] = 1.0f;
     pc.packMatrix[14] = 1.0f;
     pc.packMatrix[15] = 1.0f;
     vkCmdPushConstants(cmdBuffer, pPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushConstantDef), &pc);
 
-            // Bind to geometry attribute data and draw
+    // Bind to geometry attribute data and draw
     drawSphere(cmdBuffer);
 
 
-            // Blue Z-Axis *****************************************
+    // Blue Z-Axis *****************************************
     pc.packMatrix[12] = 0.0f;
     pc.packMatrix[13] = 0.0f;
     pc.packMatrix[14] = 1.0f;
@@ -564,7 +564,7 @@ VkResult VBBUtilsUnitAxes::renderAxes(glm::mat4& modelView, glm::mat4& proj, VkC
     vkCmdPushConstants(cmdBuffer, pPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushConstantDef), &pc);
     drawCylinder(cmdBuffer);
 
-            // Cone base - disk
+    // Cone base - disk
     modelView = glm::translate(modelView, glm::vec3(0.0f, 0.0f, cylinderLength));
     modelView = glm::rotate(modelView, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     mvp = proj * modelView;
@@ -572,7 +572,7 @@ VkResult VBBUtilsUnitAxes::renderAxes(glm::mat4& modelView, glm::mat4& proj, VkC
     vkCmdPushConstants(cmdBuffer, pPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushConstantDef), &pc);
     drawDisk(cmdBuffer);
 
-            // Cone at end
+    // Cone at end
     modelView = glm::translate(modelView, glm::vec3(0.0f, 0.0f, -(1.0f - cylinderLength)));
     mvp = proj * modelView;
     packagePushConstants(pc, modelView, mvp);
@@ -580,7 +580,7 @@ VkResult VBBUtilsUnitAxes::renderAxes(glm::mat4& modelView, glm::mat4& proj, VkC
     drawCone(cmdBuffer);
 
 
-            // Red X-Axis *************************************************
+    // Red X-Axis *************************************************
     modelView = glm::rotate(rootModelView, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     mvp = proj * modelView;
     packagePushConstants(pc, modelView, mvp);
@@ -605,7 +605,7 @@ VkResult VBBUtilsUnitAxes::renderAxes(glm::mat4& modelView, glm::mat4& proj, VkC
     vkCmdPushConstants(cmdBuffer, pPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushConstantDef), &pc);
     drawCone(cmdBuffer);
 
-            // Green Y-Axis **********************************************
+    // Green Y-Axis **********************************************
     modelView = glm::rotate(rootModelView, glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
     mvp = proj * modelView;
     packagePushConstants(pc, modelView, mvp);
