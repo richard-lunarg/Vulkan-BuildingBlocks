@@ -57,9 +57,10 @@ VBBCanvas::~VBBCanvas(void) {
         m_renderPass = VK_NULL_HANDLE;
     }
 
-    if (m_depthStencilImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_depthStencilImageView, nullptr);
-
-    if (m_depthStencilAllocation != VK_NULL_HANDLE) vmaDestroyImage(m_vma, m_depthStencilImage, m_depthStencilAllocation);
+    if (m_depthStencilImageView != VK_NULL_HANDLE) {
+        vkDestroyImageView(m_device, m_depthStencilImageView, nullptr);
+        vmaDestroyImage(m_vma, m_depthStencilImage, m_depthStencilAllocation);
+    }
 
     if (m_msaaColorImageView != VK_NULL_HANDLE) vkDestroyImageView(m_device, m_msaaColorImageView, nullptr);
 
