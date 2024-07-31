@@ -25,6 +25,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Source code in this folder
 file(GLOB FILES_HEADER ./*.h)
 file(GLOB FILES_HEADER ../../include/*.h)
+include_directories(../../include)
 
 #file(GLOB FILES_SOURCE main.cpp $ENV{VULKAN_SDK}/include/volk/volk.c ../../src/*.cpp ./*.c)
 file(GLOB FILES_SOURCE main.cpp ../../src/*.cpp ./*.c)
@@ -63,11 +64,19 @@ if(APPLE)
 	target_link_libraries(Donut "$ENV{VULKAN_SDK}/lib/libSDL2main.a")
 	target_link_libraries(Donut "$ENV{VULKAN_SDK}/lib/libSDL2.a")
 	target_link_libraries(Donut "iconv")
-else()
+endif()
+
+if(LINUX)
 	target_link_libraries(Donut "$ENV{VULKAN_SDK}/lib/libvulkan.so")
 	target_link_libraries(Donut "libSDL2main.a")
 	target_link_libraries(Donut "libSDL2.a")
 	target_link_libraries(Donut "libwayland-client.so")
+endif()
+
+if(WINDOWS)
+	target_link_libraries(Donut "$ENV{VULKAN_SDK}/lib/libvulkan-1.lib")
+	target_link_libraries(Donut "$ENV{VULKAN_SDK}/liblibSDL2main.lib")
+	target_link_libraries(Donut "$ENV{VULKAN_SDK}/liblibSDL2.lib")
 endif()
 
 

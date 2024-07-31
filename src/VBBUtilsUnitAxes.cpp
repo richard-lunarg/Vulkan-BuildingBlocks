@@ -392,8 +392,8 @@ VkResult VBBUtilsUnitAxes::createAxes(VBBCanvas* pCanvas)
     VBBMakeDisk(disk, 0.0f, diskRadius, 50, 2);
     VBBMakeCylinder(cone, 0, diskRadius, coneHeight, 50, 5);
 
-            // ***************************************************************
-            // Sphere
+    // ***************************************************************
+    // Sphere
     indexCountSphere = sphere.getIndexCount();
     attribCountSphere = sphere.getAttributeCount();
 
@@ -402,7 +402,7 @@ VkResult VBBUtilsUnitAxes::createAxes(VBBCanvas* pCanvas)
                             sizeof(float)*3*attribCountSphere, m_pCanvas->getDevice());
 
     pNormalBufferSphere = new VBBBufferStatic(m_pCanvas->getVMA());
-    lastResult = pNormalBufferSphere->createBuffer(sphere.getIndexPointer(), sizeof(float)*3*attribCountSphere, m_pCanvas->getDevice());
+    lastResult = pNormalBufferSphere->createBuffer(sphere.getNormalPointer(), sizeof(float)*3*attribCountSphere, m_pCanvas->getDevice());
 
     pIndexBufferSphere = new VBBBufferStatic(m_pCanvas->getVMA());
     lastResult = pIndexBufferSphere->createBuffer(sphere.getIndexPointer(), sizeof(uint32_t)*indexCountSphere, m_pCanvas->getDevice());
@@ -460,7 +460,7 @@ void VBBUtilsUnitAxes::packagePushConstants(pushConstantDef& pc, glm::mat4& mode
 
     memcpy(pc.mvp, glm::value_ptr(mvp), sizeof(float)*16);
 
-            // Used to transform normals
+    // Used to transform normals
     pc.packMatrix[0] = glm::value_ptr(modelView)[0];
     pc.packMatrix[1] = glm::value_ptr(modelView)[1];
     pc.packMatrix[2] = glm::value_ptr(modelView)[2];
@@ -537,24 +537,24 @@ VkResult VBBUtilsUnitAxes::renderAxes(glm::mat4& modelView, glm::mat4& proj, VkC
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pPipeline->getPipeline());
 
 
-            // We use this for everything
+    // We use this for everything
     pushConstantDef pc;
+    pushConstantDef pcSphere;
 
     glm::mat4   rootModelView = modelView;
 
     glm::mat4 mvp = proj * rootModelView;
     packagePushConstants(pc, modelView, mvp);
+    packagePushConstants(pcSphere, modelView, mvp);
 
     // White sphere
-    pc.packMatrix[12] = 1.0f;
-    pc.packMatrix[13] = 1.0f;
-    pc.packMatrix[14] = 1.0f;
-    pc.packMatrix[15] = 1.0f;
-    vkCmdPushConstants(cmdBuffer, pPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushConstantDef), &pc);
-
-    // Bind to geometry attribute data and draw
+    pcSphere.packMatrix[12] = 1.0f;
+    pcSphere.packMatrix[13] = 1.0f;
+    pcSphere.packMatrix[14] = 1.0f;
+    pcSphere.packMatrix[15] = 1.0f;
+    vkCmdPushConstants(cmdBuffer, pPipeline->getPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(pushConstantDef),
+                       &pcSphere);
     drawSphere(cmdBuffer);
-
 
     // Blue Z-Axis *****************************************
     pc.packMatrix[12] = 0.0f;

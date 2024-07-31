@@ -86,6 +86,8 @@ class VBBCanvas {
     VkBool32 getDepthStencil(void) { return m_wantDepthStencil; }
     VmaAllocator getVMA(void) { return m_vma; }
     VkQueue getQueue(void) { return m_pDevice->getQueue(); }
+    uint32_t getWidth(void) { return m_screenExtent2D.width; }
+    uint32_t getHeight(void) { return m_screenExtent2D.height; }
 
   protected:
     VkResult createDepthStencil(void);
