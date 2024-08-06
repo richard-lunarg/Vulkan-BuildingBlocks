@@ -168,9 +168,11 @@ int main(int argc, char *argv[]) {
         
     //SDL_SetEventFilter(HandleAppEvents, NULL);
 
-    window = SDL_CreateWindow(NULL, 100, 100, 1024, 768,
-                              SDL_WINDOW_VULKAN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI);
+//    window = SDL_CreateWindow(NULL, 100, 100, 1024, 768,
+//                              SDL_WINDOW_VULKAN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_ALLOW_HIGHDPI);
     
+    window = SDL_CreateWindow(NULL, 100, 100, 1200, 800, SDL_WINDOW_VULKAN | SDL_WINDOW_ALLOW_HIGHDPI);
+
     //SDL_SetWindowFullscreen(window ,SDL_WINDOW_FULLSCREEN_DESKTOP);// SDL_WINDOW_FULLSCREEN); // SDK_WINDOW_FULLSCREEN_DESKTOP
     
     // This comes back zero for the surface, and API dump does not show a singled Vulkan call made by SDL framework,
@@ -206,14 +208,14 @@ int main(int argc, char *argv[]) {
     VBBCanvas *pVulkanCanvas = new VBBCanvas(&logicalDevice, Allocator);
     pVulkanCanvas->setViewportFlip(VK_TRUE);
     pVulkanCanvas->setWantDepthStencil(VK_TRUE);
-    pVulkanCanvas->setMSAA(VK_SAMPLE_COUNT_8_BIT);
+    pVulkanCanvas->setMSAA(VK_SAMPLE_COUNT_4_BIT);
     VkClearValue clear = {0.0f, 0.0f, 0.0f, 0.0f};
     pVulkanCanvas->setClearColor(clear);
 
 
     pVulkanCanvas->setPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);  
-    pVulkanCanvas->setBlocking(VK_FALSE);
-    pVulkanCanvas->setFramesInFlight(2); // Set this to 3 on Qualcom, get validation warning
+    pVulkanCanvas->setBlocking(VK_TRUE);
+    pVulkanCanvas->setFramesInFlight(2); // Set this to 3 on Windows 11 ARM, get validation warning
     
     pVulkanCanvas->createCanvas(surface, drawableW, drawableH);
 
@@ -234,13 +236,14 @@ int main(int argc, char *argv[]) {
         
         VkCommandBuffer cmdBuffer = pVulkanCanvas->startRendering();
 
-        pOrrery->renderOrrery(cmdBuffer, 1.0f / 60.0);
+        pOrrery->renderOrrery(cmdBuffer, 1.0f / 100.0);
         
         pVulkanCanvas->doneRendering();
 
         //SDL_Delay(1);
         }
 
+    vkQueueWaitIdle(logicalDevice.getQueue());
     delete pOrrery;
     delete pVulkanCanvas;
 
