@@ -13,6 +13,12 @@
 #include "vma/vk_mem_alloc.h"
 
 #include <iostream>
+#include <filesystem>
+
+#ifdef __APPLE__
+#include <unistd.h>
+#endif
+
 #include <SDL2/SDL.h>
 #include "SDL2/SDL_vulkan.h"
 #include "VBBInstance.h"
@@ -26,7 +32,37 @@ static int screen_w, screen_h;
 
 Orrery* pOrrery = nullptr;
 
-
+/////////////////////////////////////////////////////////////////////////////////
+// No-op on anything other than the Mac, sets the working directory to
+// the /Resources folder
+void gltSetWorkingDirectory(const char *szArgv)
+{
+    (void)szArgv;
+#ifdef __APPLE__
+    static char szParentDirectory[255];
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Get the directory where the .exe resides
+    char *c;
+    strncpy( szParentDirectory, szArgv, sizeof(szParentDirectory) );
+    szParentDirectory[254] = '\0'; // Make sure we are NULL terminated
+    
+    c = (char*) szParentDirectory;
+    
+    while (*c != '\0')     // go to end
+        c++;
+    
+    while (*c != '/')      // back up to parent
+        c--;
+    
+    *c++ = '\0';           // cut off last part (binary name)
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // Change to Resources directory. Any data files need to be placed there
+    chdir(szParentDirectory);
+    chdir("../Resources");
+#endif
+}
 
 // *************************************************************************************
 void printInstanceExtensions(VBBInstance& vulkanInstance)
@@ -86,6 +122,8 @@ void listDevices(VBBPhysicalDevices& vulkanDevices)
 
 int main(int argc, char *argv[]) {
     
+    gltSetWorkingDirectory(argv[0]);
+    
     #ifdef VK_NO_PROTOTYPES
     VkResult result = volkInitialize();
     printf("Result = %d\n", result);
@@ -105,10 +143,15 @@ int main(int argc, char *argv[]) {
         
     // We need this extension whenever we are planning to do any rendering
     vulkanInstance.addRequiredExtension(VK_KHR_SURFACE_EXTENSION_NAME);
-    vulkanInstance.addRequiredExtension("VK_KHR_win32_surface");
-        
+    
+#ifdef __APPLE__
     // We need this for Apple desktop and mobile devices
-    //vulkanInstance.addRequiredExtension("VK_EXT_metal_surface");
+    vulkanInstance.addRequiredExtension("VK_EXT_metal_surface");
+#endif
+    
+#ifdef WIN32
+    vulkanInstance.addRequiredExtension("VK_KHR_win32_surface");
+#endif
         
     // We need this for our layer demo
     //vulkanInstance.addRequiredLayer("VK_LAYER_LUNARG_api_dump");
