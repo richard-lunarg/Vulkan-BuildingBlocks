@@ -40,7 +40,7 @@ class QtVulkanWindow : public QWindow
 
 public:
     QtVulkanWindow(VkInstance vulkanInstance, VmaAllocator allocator, QWindow *parent = nullptr);
-    ~QtVulkanWindow();
+    virtual ~QtVulkanWindow();
 
     // After this is called, Vulkan is ready for rendering. Any additional initialization should be done after this
     // Call these functions before creating the canvas to set desired samples, call the get functions after

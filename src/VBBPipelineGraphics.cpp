@@ -163,7 +163,8 @@ VkResult VBBPipelineGraphics::createPipeline(VBBCanvas* pCanvas, VkShaderModule 
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = m_descriptorLayoutCount;
     pipelineLayoutInfo.pSetLayouts = m_pDescriptorLayouts;
-
+    pipelineLayoutInfo.flags = 0;
+    pipelineLayoutInfo.pNext = nullptr;
     pipelineLayoutInfo.pushConstantRangeCount = m_pushConstantCount;
     pipelineLayoutInfo.pPushConstantRanges = m_pPushConstants;
 
