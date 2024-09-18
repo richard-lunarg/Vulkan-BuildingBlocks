@@ -32,7 +32,7 @@ VBBPipelineGraphics::~VBBPipelineGraphics() {
 }
 
 // Call this for each vertex input buffer
-void VBBPipelineGraphics::addVertexAttributeBinding(uint32_t stride, VkVertexInputRate inputRate, uint32_t location,
+void VBBPipelineGraphics::addVertexAttributeBinding(uint32_t stride,  uint32_t offset, VkVertexInputRate inputRate, uint32_t location,
                                                     VkFormat format) {
     uint32_t binding =  static_cast<uint32_t>(bindingDescriptions.size());
 
@@ -46,7 +46,7 @@ void VBBPipelineGraphics::addVertexAttributeBinding(uint32_t stride, VkVertexInp
     attributeDesc.binding = binding;
     attributeDesc.location = location;
     attributeDesc.format = format;
-    attributeDesc.offset = 0;
+    attributeDesc.offset = offset;
     attributeDescriptions.push_back(attributeDesc);
 }
 

@@ -93,7 +93,7 @@ class VBBPipelineGraphics {
         m_pDescriptorLayouts = pLayouts;
     }
 
-    void addVertexAttributeBinding(uint32_t stride, VkVertexInputRate inputRate, uint32_t location, VkFormat format);
+    void addVertexAttributeBinding(uint32_t stride, uint32_t offset, VkVertexInputRate inputRate, uint32_t location, VkFormat format);
 
   protected:
     VkResult m_lastResult;
