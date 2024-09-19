@@ -63,8 +63,8 @@ class VBBUtilsUnitAxes {
     void drawCone(VkCommandBuffer cmdBuffer);
 
 
-    VkResult        lastResult = VK_SUCCESS;
-    VBBCanvas*      m_pCanvas = nullptr;
+    VkResult            lastResult = VK_SUCCESS;
+    VBBCanvas*          m_pCanvas = nullptr;
 
     float               sphereSize = 0.07f;
     uint32_t            indexCountSphere = 0;

@@ -24,8 +24,8 @@ bool ModelEarth::initModel(void) {
     if (pPipeline == nullptr) return false;
 
     // What does the attribute data look like, and what is it's location
-    pPipeline->addVertexAttributeBinding(sizeof(float) * 3, VK_VERTEX_INPUT_RATE_VERTEX, 0, VK_FORMAT_R32G32B32_SFLOAT);
-    pPipeline->addVertexAttributeBinding(sizeof(float) * 3, VK_VERTEX_INPUT_RATE_VERTEX, 1, VK_FORMAT_R32G32B32_SFLOAT);
+    pPipeline->addVertexAttributeBinding(sizeof(float) * 3, 0, VK_VERTEX_INPUT_RATE_VERTEX, 0, VK_FORMAT_R32G32B32_SFLOAT);
+    pPipeline->addVertexAttributeBinding(sizeof(float) * 3, 0, VK_VERTEX_INPUT_RATE_VERTEX, 1, VK_FORMAT_R32G32B32_SFLOAT);
 
     // Push constants are SO FREAKING EASY
     VkPushConstantRange pushConstant;

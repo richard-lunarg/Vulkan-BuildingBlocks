@@ -94,8 +94,8 @@ class VBBSimpleIndexedMesh {
             if(pFile == NULL)
                 return false; // Fail gracefully
 
-            uint32_t nIndexCount = m_indexes.size();
-            uint32_t nVertexCount = m_vertices.size();
+            uint32_t nIndexCount = (uint32_t)m_indexes.size();
+            uint32_t nVertexCount = (uint32_t)m_vertices.size();
             fwrite(&nIndexCount, sizeof(uint32_t), 1, pFile);
             fwrite(&nVertexCount, sizeof(uint32_t), 1, pFile);
 

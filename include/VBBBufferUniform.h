@@ -41,8 +41,8 @@ class VBBBufferUniform {
     void free(void);
 
   protected:
-    VmaAllocator  m_VMA = VK_NULL_HANDLE;
-    VmaAllocation m_allocation;
-    VkBuffer m_buffer = VK_NULL_HANDLE;
-    size_t m_bufferSize;
+    VmaAllocator    m_VMA = VK_NULL_HANDLE;
+    VmaAllocation   m_allocation;
+    VkBuffer        m_buffer = VK_NULL_HANDLE;
+    size_t          m_bufferSize = 0;
 };
