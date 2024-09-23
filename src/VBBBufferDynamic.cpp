@@ -23,10 +23,14 @@
 
 #include "VBBBufferDynamic.h"
 #include <memory.h>
+#include <assert.h>
 
 VBBBufferDynamic::~VBBBufferDynamic() { free(); }
 
 void VBBBufferDynamic::free(void) {
+    if(m_mapped)
+        unmapMemory();
+
     if (m_buffer != VK_NULL_HANDLE) vmaDestroyBuffer(m_VMA, m_buffer, m_allocation);
 
     m_buffer = VK_NULL_HANDLE;
@@ -51,6 +55,8 @@ VkResult VBBBufferDynamic::createBuffer(VkDeviceSize size) {
 }
 
 void VBBBufferDynamic::updateBuffer(void* pSrcData, VkDeviceSize bytes) {
+    assert(!m_mapped); // Pick one dude... if you are already mapped, don't do this
+
     void* pDst = mapMemory();
     memcpy(pDst, pSrcData, bytes);
     unmapMemory();
@@ -59,7 +65,8 @@ void VBBBufferDynamic::updateBuffer(void* pSrcData, VkDeviceSize bytes) {
 void* VBBBufferDynamic::mapMemory(void) {
     void* pData;
     vmaMapMemory(m_VMA, m_allocation, &pData);
+    m_mapped = true;
     return pData;
 }
 
-void VBBBufferDynamic::unmapMemory(void) { vmaUnmapMemory(m_VMA, m_allocation); }
+void VBBBufferDynamic::unmapMemory(void) { vmaUnmapMemory(m_VMA, m_allocation); m_mapped = false; }

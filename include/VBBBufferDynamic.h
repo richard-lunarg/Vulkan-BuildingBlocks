@@ -59,4 +59,5 @@ class VBBBufferDynamic {
     VmaAllocation   m_allocation = VK_NULL_HANDLE;
     VkBuffer        m_buffer = VK_NULL_HANDLE;
     size_t          m_bufferSize = 0;
+    bool            m_mapped = false;
 };
