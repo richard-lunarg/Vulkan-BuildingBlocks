@@ -48,10 +48,11 @@ VkResult VBBPipelineCompute::createPipeline(VkDevice logicalDevice, VkShaderModu
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.pNext = nullptr;
     pipelineLayoutInfo.flags = 0;
-    pipelineLayoutInfo.setLayoutCount = 1;  // Verified, this is RIGHT, "a single one contains all the bindings"
+    pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = m_pDescriptorLayouts;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = m_pushConstantCount;
+    pipelineLayoutInfo.pPushConstantRanges = m_pPushConstants;
+
 
     m_lastResult = vkCreatePipelineLayout(m_device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout);
     if (m_lastResult != VK_SUCCESS) return m_lastResult;

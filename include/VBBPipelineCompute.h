@@ -58,6 +58,11 @@ class VBBPipelineCompute {
         m_pDescriptorLayouts = pLayouts;
     }
 
+    void setPushConstants(uint32_t count, VkPushConstantRange* pRange) {
+        m_pushConstantCount = count;
+        m_pPushConstants = pRange;
+    }
+
   protected:
     VkResult m_lastResult;
     VkDevice m_device = VK_NULL_HANDLE;
@@ -70,6 +75,7 @@ class VBBPipelineCompute {
 
     VkDescriptorSetLayout* m_pDescriptorLayouts = nullptr;
     uint32_t m_descriptorLayoutCount = 0;
+
 
   protected:
     // ********************************************************************************

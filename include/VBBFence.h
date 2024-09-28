@@ -39,6 +39,7 @@ class VBBFence {
     VkFence getFence(void) { return m_waitFence; }
     VkResult reset(void);
     VkResult wait(uint64_t timeoutValue = UINT64_MAX);
+    VkResult status(void);
 
   protected:
     VkFence m_waitFence = VK_NULL_HANDLE;
