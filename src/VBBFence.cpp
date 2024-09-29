@@ -53,14 +53,14 @@ VkResult VBBFence::reset(void) { return vkResetFences(m_device, 1, &m_waitFence)
 
 // *********************************************************************
 // Wait or timeout
-VkResult VBBFence::wait(uint64_t timeoutValue) { return vkWaitForFences(m_device, 1, &m_waitFence, VK_TRUE, timeoutValue); }
+VkResult VBBFence::wait(uint64_t timeoutValue) const { return vkWaitForFences(m_device, 1, &m_waitFence, VK_TRUE, timeoutValue); }
 
 
 // *********************************************************************
 // VK_SUCESS = signaled
 // VK_NOT_READY = unsignaled
 // VK_ERROR_DEVICE_LOST = badness...
-VkResult VBBFence::status(void)
+VkResult VBBFence::status(void) const
 {
     return vkGetFenceStatus(m_device, m_waitFence);
 }
