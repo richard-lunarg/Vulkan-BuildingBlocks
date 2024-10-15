@@ -34,7 +34,7 @@
 class VBBBufferStatic {
   public:
     VBBBufferStatic(VmaAllocator allocator);
-    ~VBBBufferStatic(void);
+    virtual ~VBBBufferStatic(void);
 
     VkResult createBuffer(VkDeviceSize size);
     VkResult createBuffer(void* pData, VkDeviceSize size, VBBDevice* pLogicalDevice);

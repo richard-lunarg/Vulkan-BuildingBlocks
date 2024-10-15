@@ -41,7 +41,7 @@
 class VBBBufferDynamic {
   public:
     VBBBufferDynamic(VmaAllocator allocator) { m_VMA = allocator; }
-    ~VBBBufferDynamic();
+    virtual ~VBBBufferDynamic();
 
     VkResult createBuffer(VkDeviceSize size);
 
