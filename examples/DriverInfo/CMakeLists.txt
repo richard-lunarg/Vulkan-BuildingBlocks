@@ -23,18 +23,14 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Source code in this folder
-file(GLOB FILES_HEADER ./*.h)
-file(GLOB FILES_HEADER ../../*.H)
-
-#file(GLOB FILES_SOURCE main.cpp $ENV{VULKAN_SDK}/include/volk/volk.c ../../*.cpp ./*.c)
-file(GLOB FILES_SOURCE main.cpp ../../*.cpp ./*.c)
-
+file(GLOB FILES_HEADER ./*.h ../../include/*.h)
+file(GLOB FILES_SOURCE ./*.cpp ../../src/*.cpp)
 
 add_executable(DriverInfo ${FILES_HEADER} ${FILES_SOURCE})
 
 set_target_properties(DriverInfo PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(DriverInfo PRIVATE "$ENV{VULKAN_SDK}/include" "$ENV{VULKAN_SDK}/include/SDL2" "./" "../../")
+target_include_directories(DriverInfo PRIVATE "$ENV{VULKAN_SDK}/include" "$ENV{VULKAN_SDK}/include/SDL2" "$ENV{VULKAN_SDK}/include/SDL2" "./" "../../include")
 target_link_directories(DriverInfo PRIVATE $ENV{VULKAN_SDK}/lib)
 target_compile_definitions(DriverInfo PRIVATE VK_NO_PROTOTYPES)
 
