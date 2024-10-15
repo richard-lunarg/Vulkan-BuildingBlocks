@@ -2,7 +2,6 @@
 # cmake ..
 # cmake --build . --config Release  
 
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 cmake_minimum_required(VERSION 3.28.1)
@@ -15,6 +14,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # This finds the Vulkan SDK
 find_package(Vulkan)
 
+if(NOT Vulkan_FOUND)
+    message(FATAL_ERROR, "Vulkan not found, cannot proceed. Be sure and run setup-env.sh on Linux or macOS.")
+endif()
 
 # Source code in this folder and VBB up a few folders
 file(GLOB FILES_HEADER ./*.h ../../include/*.h)
@@ -57,19 +59,38 @@ set_target_properties(Orrery PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(Orrery PRIVATE "$ENV{VULKAN_SDK}/include" "$ENV{VULKAN_SDK}/include/SDL2" "$ENV{VULKAN_SDK}/include/SDL2" "./" "../../include")
 target_link_directories(Orrery PRIVATE $ENV{VULKAN_SDK}/lib)
 
+
 if(APPLE)
 	set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/LunarGIcons.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 	target_compile_definitions(Orrery PRIVATE VK_USE_PLATFORM_MACOS_MVK)
 
 	install(TARGETS Orrery RUNTIME DESTINATION MacOS BUNDLE DESTINATION MacOS) 
-	target_link_libraries(Orrery "-framework Cocoa -framework QuartzCore -framework Metal -framework GameController")
-	target_link_libraries(Orrery "-framework ForceFeedback -framework CoreHaptics -framework InputMethodKit -framework CoreGraphics")
-	target_link_libraries(Orrery "-framework AppKit -framework Carbon -framework CoreVideo -framework CoreAudio")
-	target_link_libraries(Orrery "-framework AVFAudio -framework AudioToolbox -framework IOKit -framework CoreAudioKit")
-	target_link_libraries(Orrery "-framework CoreFoundation")
-	target_link_libraries(Orrery "$ENV{VULKAN_SDK}/lib/libvulkan.1.dylib")
-	target_link_libraries(Orrery "$ENV{VULKAN_SDK}/lib/libSDL2main.a")
-	target_link_libraries(Orrery "$ENV{VULKAN_SDK}/lib/libSDL2.a")
+	
+	if(IOS)
+        set(CMAKE_FRAMEWORK_PATH ${CMAKE_FRAMEWORK_PATH};${VULKAN_SDK}/lib)
+        
+    	#target_link_libraries(Orrery "-framework $ENV{VULKAN_SDK}/lib/SDL2.xcframework/ios-arm64/SDL2 -framework $ENV{VULKAN_SDK}/lib/vulkan.framework/vulkan")
+    	target_link_libraries(Orrery "-framework vulkan")
+
+    	target_link_libraries(Orrery "-framework CoreGraphics")
+        target_link_libraries(Orrery "-framework QuartzCore -framework Metal -framework GameController")
+    	target_link_libraries(Orrery "-framework CoreVideo -framework CoreAudio")
+	    target_link_libraries(Orrery "-framework AVFAudio -framework AudioToolbox -framework IOKit -framework CoreAudioKit")
+	    target_link_libraries(Orrery "-framework CoreFoundation")
+    	
+    	#set_property(Orrery XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "LunarG, Inc.")
+    	    	
+	else()
+		target_link_libraries(Orrery "-framework AppKit -framework Carbon -framework CoreVideo -framework CoreAudio")
+    	target_link_libraries(Orrery "-framework AVFAudio -framework AudioToolbox -framework IOKit -framework CoreAudioKit")
+	    target_link_libraries(Orrery "-framework CoreFoundation")
+    	target_link_libraries(Orrery "-framework ForceFeedback -framework CoreHaptics -framework InputMethodKit -framework CoreGraphics")
+		target_link_libraries(Orrery "-framework Cocoa -framework QuartzCore -framework Metal -framework GameController")
+	    target_link_libraries(Orrery "$ENV{VULKAN_SDK}/lib/libvulkan.1.dylib")
+	    target_link_libraries(Orrery "$ENV{VULKAN_SDK}/lib/libSDL2main.a")
+	    target_link_libraries(Orrery "$ENV{VULKAN_SDK}/lib/libSDL2.a")
+	endif()
+	
 	target_link_libraries(Orrery "$ENV{VULKAN_SDK}/lib/libshaderc_combined.a")
 	target_link_libraries(Orrery "iconv")
 endif()
