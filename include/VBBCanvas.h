@@ -88,11 +88,17 @@ class VBBCanvas {
     VkQueue getQueue(void) { return m_pDevice->getQueue(); }
     uint32_t getWidth(void) { return m_screenExtent2D.width; }
     uint32_t getHeight(void) { return m_screenExtent2D.height; }
+    VkFormat getSwapChainFormat(void) { return m_colorFormat; }
+
+    VkResult grabScreen(void* pImage);
 
   protected:
     VkResult createDepthStencil(void);
     VkResult createRenderPass(void);
     VkResult createFramebuffers(void);
+
+    void transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
+
 
     VmaAllocator m_vma = nullptr;
     VBBDevice* m_pDevice = nullptr;

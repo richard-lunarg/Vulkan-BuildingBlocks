@@ -162,5 +162,9 @@ void VBBMakeCylinder(VBBSimpleIndexedMesh& cylinderBatch, float baseRadius, floa
 void VBBMakeDisk(VBBSimpleIndexedMesh& diskBatch, float innerRadius, float outerRadius, uint32_t nSlices, uint32_t nStacks,
                  uint32_t degrees = 360);
 
+// ******************************
+// Other little tidbits
 unsigned char* vbbReadTGABits(const char* szFileName, uint32_t* iWidth, uint32_t* iHeight, uint32_t* iComponents, VkFormat* format,
                               unsigned char* pMemoryBuffer = nullptr);
+
+int getBytesPerPixel(VkFormat format);

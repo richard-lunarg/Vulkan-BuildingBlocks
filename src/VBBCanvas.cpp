@@ -22,6 +22,9 @@
  */
 
 #include "VBBCanvas.h"
+#include "VBBSingleShotCommand.h"
+#include "VBBBufferDynamic.h"
+#include "VBBUtils.h"
 
 VBBCanvas::VBBCanvas(VBBDevice* pVulkanDevice, VmaAllocator allocator) : m_vma(allocator) {
     m_pDevice = pVulkanDevice;
@@ -304,7 +307,7 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     swapChainInfo.imageColorSpace = m_surfaceFormatToUse.colorSpace;
     swapChainInfo.imageExtent = m_screenExtent2D;
     swapChainInfo.imageArrayLayers = 1;
-    swapChainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    swapChainInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     swapChainInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     swapChainInfo.queueFamilyIndexCount = 0;
     swapChainInfo.pQueueFamilyIndices = nullptr;
@@ -519,6 +522,8 @@ VkResult VBBCanvas::createFramebuffers(void) {
 }
 
 VkCommandBuffer VBBCanvas::startRendering(void) {
+    m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
+
     m_inFlightFences[m_currentFrame].wait();   // Until any previous rendering is done
     m_inFlightFences[m_currentFrame].reset();  // Clear it for the next use
 
@@ -630,12 +635,100 @@ VkResult VBBCanvas::doneRendering(void) {
     // Note, this is actually asynchronous...
     m_lastResult = vkQueuePresentKHR(m_pDevice->getQueue(), &presentInfo);
 
-    m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 
     if (m_lastResult == VK_ERROR_OUT_OF_DATE_KHR || m_lastResult == VK_SUBOPTIMAL_KHR) {
         vkQueueWaitIdle(m_pDevice->getQueue());   // Important! we can't do this with frames in flight
         resizeCanvas(m_screenExtent2D.width, m_screenExtent2D.height);
     }
+
+    return VK_SUCCESS;
+}
+
+
+// ***************************************************************************************************
+// This is used on the swapchain to do screen grabs.
+void VBBCanvas::transitionImageLayout(VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout)
+{
+    // This function should record commands that transition the image layout
+    // Omitted for brevity; Vulkan-specific layout transition commands needed.
+    VBBSingleShotCommand singleShot(m_device, m_pDevice->getCommandPool(), getQueue());
+
+    VkImageMemoryBarrier barrier = {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = image;
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+    barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+    VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+    singleShot.start();
+    vkCmdPipelineBarrier(singleShot.getCommandBuffer(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+    singleShot.end();
+}
+
+
+// ***********************************************************************
+// Grab the current swapbuffer image. 'pImage' must be pre-allocated, the raw
+// image data is copied there. The image has the same width and height as
+// the canvas, and has the same format as the swapchain
+VkResult VBBCanvas::grabScreen(void* pImage)
+{
+    // // Can we do this the fast way (blt) from the swap chain?
+    // VkFormatProperties formatProps;
+    // vkGetPhysicalDeviceFormatProperties(m_physicalDevice, m_colorFormat, &formatProps);
+    // if (!(formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT))
+    //     return VK_ERROR_FEATURE_NOT_PRESENT;
+
+    // // Can we blit to what you want?
+    // vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &formatProps);
+    // if (!(formatProps.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT))
+    //     return VK_ERROR_FEATURE_NOT_PRESENT;
+
+    // printf("We can has blit\n");
+
+    // Convert swap chain to something we can use
+    VkImage srcImage = m_swapchainImages[m_currentFrame];
+    transitionImageLayout(srcImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+
+    uint32_t bytesPerPixel = getBytesPerPixel(m_colorFormat);
+
+    VkBufferImageCopy region = { };
+    region.bufferOffset = 0;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+
+    region.imageOffset = (VkOffset3D){0, 0, 0};
+    region.imageExtent = (VkExtent3D){(uint32_t)getWidth(), (uint32_t)getHeight(), 1};
+
+    // Blit that baby
+    VBBBufferDynamic imageData(m_vma);
+    imageData.createBuffer(getWidth() * getHeight() * bytesPerPixel);
+
+    VBBSingleShotCommand singleShot(m_device, m_pDevice->getCommandPool(), getQueue());
+    singleShot.start();
+    vkCmdCopyImageToBuffer(singleShot.getCommandBuffer(), srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, imageData.getBuffer(), 1, &region);
+    singleShot.end();
+
+    // Put swapchain image back
+    transitionImageLayout(srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+    memcpy(pImage, imageData.mapMemory(), getWidth() * getHeight() * bytesPerPixel); // don't leave me like this either
+
 
     return VK_SUCCESS;
 }

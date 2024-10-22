@@ -54,6 +54,8 @@ public:
     void                        setClearColor(VkClearValue val) { m_clearColor = val; }
     void                        setDepthStencilClearValue(VkClearValue val) { m_depthStencilClearValue = val; }
 
+    VBBCanvas*                  getCanvas(void) { return pVulkanCanvas; }
+
     inline VkResult getLastResult(void) { return lastResult; }
 
     virtual VkResult createCanvas(VBBDevice *pLogicalDevice);
