@@ -67,22 +67,25 @@ if(APPLE)
 	install(TARGETS Orrery RUNTIME DESTINATION MacOS BUNDLE DESTINATION MacOS) 
 	
 	if(IOS)
-        set(CMAKE_FRAMEWORK_PATH ${CMAKE_FRAMEWORK_PATH};${VULKAN_SDK}/lib)
+        #set(CMAKE_FRAMEWORK_PATH ${CMAKE_FRAMEWORK_PATH};$ENV{VULKAN_SDK}/lib)
         
         # cmake supports xcframeworks as of version 3.28
-    	target_link_libraries(Orrery "-framework $ENV{VULKAN_SDK}/lib/SDL2.xcframework -framework $ENV{VULKAN_SDK}/lib/vulkan.framework")
-    	#target_link_libraries(Orrery "-framework vulkan")
-
     	target_link_libraries(Orrery "-framework CoreGraphics")
         target_link_libraries(Orrery "-framework QuartzCore -framework Metal -framework GameController")
     	target_link_libraries(Orrery "-framework CoreVideo -framework CoreAudio")
 	    target_link_libraries(Orrery "-framework AVFAudio -framework AudioToolbox -framework IOKit -framework CoreAudioKit")
 	    target_link_libraries(Orrery "-framework CoreFoundation")
-    	
+	    
+		    
+     	#target_link_libraries(Orrery "-framework $ENV{VULKAN_SDK}/lib/SDL2.xcframework/ios-arm64/SDL2.framework")
+    	#target_link_libraries(Orrery "-framework $ENV{VULKAN_SDK}/lib/vulkan.framework")
+
+
     	#set_property(GLOBAL Orrery XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "Richard Wright (Personal Team)")
     	#set(CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "97Z2ARC25P")
         #set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "Richard Wright (Personal Team)")
         #set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Automatic")
+     
         set_target_properties(Orrery PROPERTIES XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
         set_target_properties(Orrery PROPERTIES XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "")
     	    	
