@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 cmake_minimum_required(VERSION 3.28.1)
 
-project(Orrery LANGUAGES CXX)
+project(Orrery LANGUAGES C CXX)
 add_compile_definitions(VBB_USE_SHADER_TOOLCHAIN)
 add_compile_definitions(VK_NO_PROTOTYPES)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -20,7 +20,12 @@ endif()
 
 # Source code in this folder and VBB up a few folders
 file(GLOB FILES_HEADER ./*.h ../../include/*.h)
-file(GLOB FILES_SOURCE ./*.cpp ../../src/*.cpp)
+
+if(IOS)
+    file(GLOB FILES_SOURCE ./SDL_uikit_main.c ./*.cpp ../../src/*.cpp)
+else()
+    file(GLOB FILES_SOURCE ./*.cpp ../../src/*.cpp)
+endif()
 
 if(APPLE)
 	set(RESOURCE_FILES 
@@ -68,6 +73,8 @@ if(APPLE)
 	
 	if(IOS)
         #set(CMAKE_FRAMEWORK_PATH ${CMAKE_FRAMEWORK_PATH};$ENV{VULKAN_SDK}/lib)
+        add_library(SDL2 SHARED IMPORTED)
+        set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION $ENV{VULKAN_SDK}/lib/SDL2.xcframework)
         
         # cmake supports xcframeworks as of version 3.28
     	target_link_libraries(Orrery "-framework CoreGraphics")
@@ -76,7 +83,8 @@ if(APPLE)
 	    target_link_libraries(Orrery "-framework AVFAudio -framework AudioToolbox -framework IOKit -framework CoreAudioKit")
 	    target_link_libraries(Orrery "-framework CoreFoundation")
 	    
-		    
+		 
+		target_link_libraries(Orrery SDL2)   
      	#target_link_libraries(Orrery "-framework $ENV{VULKAN_SDK}/lib/SDL2.xcframework/ios-arm64/SDL2.framework")
     	#target_link_libraries(Orrery "-framework $ENV{VULKAN_SDK}/lib/vulkan.framework")
 

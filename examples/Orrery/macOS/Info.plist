@@ -6,6 +6,10 @@
 	<string>Orrery</string>
 	<key>CFBundleIconFile</key>
 	<string>LunarGIcons.icns</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
 	<key>CFBundleIdentifier</key>
 	<string>LunarG.com.orrery</string>
 	<key>CFBundlePackageType</key>
