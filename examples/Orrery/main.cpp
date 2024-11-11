@@ -152,10 +152,11 @@ int main(int argc, char *argv[]) {
 #ifdef WIN32
     vulkanInstance.addRequiredExtension("VK_KHR_win32_surface");
 #endif
-        
+
+    vulkanInstance.addRequiredExtension("VK_KHR_wayland_surface");
     // We need this for our layer demo
     //vulkanInstance.addRequiredLayer("VK_LAYER_LUNARG_api_dump");
-    //vulkanInstance.addRequiredLayer("VK_LAYER_KHRONOS_validation");
+    vulkanInstance.addRequiredLayer("VK_LAYER_KHRONOS_validation");
     
     // Create the actual instance
     if(VK_SUCCESS != vulkanInstance.createInstance(VK_TRUE)) {
@@ -245,6 +246,7 @@ int main(int argc, char *argv[]) {
     
     VmaAllocator Allocator;
     vmaCreateAllocator(&allocatorCreateInfo, &Allocator);
+    printf("VMA Allocator created\n");
     
     VBBCanvas *pVulkanCanvas = new VBBCanvas(&logicalDevice, Allocator);
     pVulkanCanvas->setViewportFlip(VK_TRUE);
@@ -252,16 +254,18 @@ int main(int argc, char *argv[]) {
     pVulkanCanvas->setMSAA(VK_SAMPLE_COUNT_4_BIT);
     VkClearValue clear = {0.0f, 0.0f, 0.0f, 0.0f};
     pVulkanCanvas->setClearColor(clear);
-
+    printf("VBB Canvas object Created\n");
 
     pVulkanCanvas->setPresentMode(VK_PRESENT_MODE_MAILBOX_KHR);  
     pVulkanCanvas->setBlocking(VK_TRUE);
-    pVulkanCanvas->setFramesInFlight(2); // Set this to 3 on Windows 11 ARM, get validation warning
+    pVulkanCanvas->setFramesInFlight(2);
     
     pVulkanCanvas->createCanvas(surface, drawableW, drawableH);
+    printf("Canvas created\n");
 
     pOrrery = new Orrery();
     pOrrery->initOrrery(Allocator, &logicalDevice, pVulkanCanvas);
+    printf("Orrery Initialized\n");
 
     SDL_Event event;
     bool bDone = false;

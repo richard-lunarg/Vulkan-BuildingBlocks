@@ -13,6 +13,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # This finds the Vulkan SDK
 find_package(Vulkan)
+find_package(SDL2 REQUIRED)
 
 if(NOT Vulkan_FOUND)
     message(FATAL_ERROR, "Vulkan not found, cannot proceed. Be sure and run setup-env.sh on Linux or macOS.")
@@ -56,8 +57,8 @@ if(APPLE)
 
 endif()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	add_executable(Orrery ${FILES_HEADER} ${FILES_SOURCE})
+if(NOT APPLE)
+add_executable(Orrery ${FILES_HEADER} ${FILES_SOURCE})
 endif()
 
 set_target_properties(Orrery PROPERTIES LINKER_LANGUAGE CXX)
@@ -119,10 +120,12 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	target_compile_options(Orrery PRIVATE -std=c++17)
 	target_link_libraries(Orrery "$ENV{VULKAN_SDK}/lib/libvulkan.so")
-	target_link_libraries(Orrery "libshaderc_combined.lib")
-	target_link_libraries(Orrery "libSDL2main.a")
-	target_link_libraries(Orrery "libSDL2.a")
+	target_link_libraries(Orrery "libshaderc_combined.a")
+	#target_link_libraries(Orrery "libSDL2main.a")
+	#target_link_libraries(Orrery "libSDL2.a")
+	target_link_libraries(Orrery SDL2)
 	target_link_libraries(Orrery "libwayland-client.so")
 endif()
 
