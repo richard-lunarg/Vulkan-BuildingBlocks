@@ -275,8 +275,13 @@ VkResult VBBCanvas::resizeCanvas(uint32_t width, uint32_t height) {
     // We are probably closing the window and the windowing system is still calling this
     if (m_lastResult == VK_ERROR_SURFACE_LOST_KHR) return m_lastResult;
 
+    // Note to self, this is tempting... after all why even pass in width and height
+    // however, it is sometimes -1, -1 on creation and this causes a crash with some implementations
     m_screenExtent2D.width = surfaceCapabilities.currentExtent.width;
     m_screenExtent2D.height = surfaceCapabilities.currentExtent.height;
+    // So DON'T... use the passed in valuse from the window size
+    m_screenExtent2D.width = width;
+    m_screenExtent2D.height = height;
 
     if (m_wantDepthStencil) {
         m_lastResult = createDepthStencil();
